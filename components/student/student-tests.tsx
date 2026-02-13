@@ -72,13 +72,12 @@ export function StudentTests() {
   const [dppTimerActive, setDppTimerActive] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Get questions for a DPP (use first N from mockQuestions matching the chapter)
+  // Get MCQ questions for a DPP (filter out NAT/empty-option questions)
   const getDPPQuestions = useCallback((dpp: DPP): Question[] => {
-    // Get all questions, cycle them if needed for the questionCount
-    const allQs = mockQuestions
+    const mcqOnly = mockQuestions.filter(q => q.options && q.options.length > 0)
     const questions: Question[] = []
-    for (let i = 0; i < dpp.questionCount && i < allQs.length; i++) {
-      questions.push(allQs[i % allQs.length])
+    for (let i = 0; i < dpp.questionCount; i++) {
+      questions.push(mcqOnly[i % mcqOnly.length])
     }
     return questions
   }, [])
@@ -316,7 +315,9 @@ export function StudentTests() {
         {/* DPPs */}
         <TabsContent value="dpps" className="mt-4 space-y-4">
           {mockDPPs.map(dpp => {
-            const isPast = new Date(dpp.deadline) < new Date()
+            const deadlineEnd = new Date(dpp.deadline)
+            deadlineEnd.setHours(23, 59, 59, 999)
+            const isPast = deadlineEnd < new Date()
             return (
               <Card key={dpp.id} className="border-none bg-muted/60">
                 <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center">
@@ -629,7 +630,7 @@ export function StudentTests() {
                     <p className="text-base font-medium leading-relaxed text-foreground">{dppQuestions[dppCurrentQ].text}</p>
 
                     <div className="mt-6 space-y-3">
-                      {dppQuestions[dppCurrentQ].options.map(opt => {
+                      {(dppQuestions[dppCurrentQ].options || []).map(opt => {
                         const isSelected = dppAnswers[dppQuestions[dppCurrentQ].id] === opt.id
                         return (
                           <button
@@ -742,7 +743,7 @@ export function StudentTests() {
                           </div>
                           <p className="text-sm font-medium leading-relaxed text-foreground">{q.text}</p>
                           <div className="mt-4 space-y-2">
-                            {q.options.map(opt => {
+                            {(q.options || []).map(opt => {
                               const isUserPick = userAnswer === opt.id
                               const isCorrectOpt = opt.id === q.correctAnswer
                               return (

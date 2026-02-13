@@ -133,10 +133,10 @@ export const mockAttempts: TestAttempt[] = [
 
 // ---- DPPs ----
 export const mockDPPs: DPP[] = [
-  { id: "dpp1", title: "Mechanics DPP 1", chapterId: "c1", questionCount: 15, releaseDate: "2026-02-10", deadline: "2026-02-12", batchIds: ["b1"] },
-  { id: "dpp2", title: "Thermodynamics DPP 1", chapterId: "c2", questionCount: 10, releaseDate: "2026-02-12", deadline: "2026-02-14", batchIds: ["b1"] },
-  { id: "dpp3", title: "Atomic Structure DPP", chapterId: "c5", questionCount: 12, releaseDate: "2026-02-11", deadline: "2026-02-13", batchIds: ["b1", "b2"] },
-  { id: "dpp4", title: "Calculus DPP 1", chapterId: "c9", questionCount: 20, releaseDate: "2026-02-13", deadline: "2026-02-15", batchIds: ["b1"] },
+  { id: "dpp1", title: "Mechanics DPP 1", chapterId: "c1", questionCount: 4, releaseDate: "2026-02-10", deadline: "2026-02-11", batchIds: ["b1"] },
+  { id: "dpp2", title: "Thermodynamics DPP 1", chapterId: "c2", questionCount: 4, releaseDate: "2026-02-12", deadline: "2026-02-18", batchIds: ["b1"] },
+  { id: "dpp3", title: "Atomic Structure DPP", chapterId: "c5", questionCount: 4, releaseDate: "2026-02-11", deadline: "2026-02-19", batchIds: ["b1", "b2"] },
+  { id: "dpp4", title: "Calculus DPP 1", chapterId: "c9", questionCount: 4, releaseDate: "2026-02-13", deadline: "2026-02-20", batchIds: ["b1"] },
 ]
 
 // ---- Community Posts ----
