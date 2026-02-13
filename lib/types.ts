@@ -67,6 +67,7 @@ export interface Lesson {
   videoId?: string
   releaseDate: string
   isLocked: boolean
+  isCompleted: boolean
 }
 
 export interface Question {

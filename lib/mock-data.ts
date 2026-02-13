@@ -73,14 +73,14 @@ export const mockSubjects: Subject[] = [
 
 // ---- Lessons ----
 export const mockLessons: Lesson[] = [
-  { id: "l1", chapterId: "c1", title: "Newton's Laws of Motion", type: "video", duration: 45, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-01", isLocked: false },
-  { id: "l2", chapterId: "c1", title: "Work, Energy & Power", type: "video", duration: 50, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-03", isLocked: false },
-  { id: "l3", chapterId: "c1", title: "Mechanics Notes PDF", type: "notes", releaseDate: "2025-07-01", isLocked: false },
-  { id: "l4", chapterId: "c1", title: "DPP - Mechanics Set 1", type: "dpp", releaseDate: "2025-07-02", isLocked: false },
-  { id: "l5", chapterId: "c2", title: "Laws of Thermodynamics", type: "video", duration: 55, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-10", isLocked: false },
-  { id: "l6", chapterId: "c3", title: "Wave Motion", type: "video", duration: 40, videoId: "dQw4w9WgXcQ", releaseDate: "2025-08-01", isLocked: true },
-  { id: "l7", chapterId: "c5", title: "Bohr's Model", type: "video", duration: 35, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-05", isLocked: false },
-  { id: "l8", chapterId: "c9", title: "Limits & Continuity", type: "video", duration: 60, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-01", isLocked: false },
+  { id: "l1", chapterId: "c1", title: "Newton's Laws of Motion", type: "video", duration: 45, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-01", isLocked: false, isCompleted: true },
+  { id: "l2", chapterId: "c1", title: "Work, Energy & Power", type: "video", duration: 50, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-03", isLocked: false, isCompleted: true },
+  { id: "l3", chapterId: "c1", title: "Mechanics Notes PDF", type: "notes", releaseDate: "2025-07-01", isLocked: false, isCompleted: true },
+  { id: "l4", chapterId: "c1", title: "DPP - Mechanics Set 1", type: "dpp", releaseDate: "2025-07-02", isLocked: false, isCompleted: false },
+  { id: "l5", chapterId: "c2", title: "Laws of Thermodynamics", type: "video", duration: 55, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-10", isLocked: false, isCompleted: false },
+  { id: "l6", chapterId: "c3", title: "Wave Motion", type: "video", duration: 40, videoId: "dQw4w9WgXcQ", releaseDate: "2025-08-01", isLocked: true, isCompleted: false },
+  { id: "l7", chapterId: "c5", title: "Bohr's Model", type: "video", duration: 35, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-05", isLocked: false, isCompleted: true },
+  { id: "l8", chapterId: "c9", title: "Limits & Continuity", type: "video", duration: 60, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-01", isLocked: false, isCompleted: false },
 ]
 
 // ---- Chapter Quizzes (mandatory end-of-chapter) ----

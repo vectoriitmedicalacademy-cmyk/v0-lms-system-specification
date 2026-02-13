@@ -14,7 +14,7 @@ import {
   Search, ChevronRight, ChevronLeft, Clock, X, Play, Lock,
   FileText, ThumbsUp, Bookmark, Download, CheckSquare, Link2,
   ImageIcon, Send, ArrowLeft, CheckCircle2, AlertCircle,
-  BookOpen, GraduationCap
+  BookOpen, GraduationCap, Circle
 } from "lucide-react"
 import { mockSubjects, mockLessons, mockCourses, mockChapterQuizzes, mockQuestions, mockCommunityPosts } from "@/lib/mock-data"
 import type { Subject, Chapter, Course, ChapterQuiz } from "@/lib/types"
@@ -521,12 +521,23 @@ function ChapterDetailView({ chapter, subject }: { chapter: Chapter; subject: Su
                                 : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
                             }`}
                           >
+                            {/* Timeline tick mark */}
                             <div className="absolute -left-[1.65rem] top-1/2 -translate-y-1/2">
-                              <CheckSquare className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                              {lesson.isCompleted ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                              ) : (
+                                <Circle className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground/50"}`} />
+                              )}
                             </div>
-                            <Play className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                            {/* Tick overlay on card */}
+                            {lesson.isCompleted && (
+                              <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                              </div>
+                            )}
+                            {!lesson.isCompleted && <Play className="h-4 w-4 flex-shrink-0 text-muted-foreground" />}
                             <div className="flex-1">
-                              <span className="block truncate text-sm font-medium text-foreground">{lesson.title}</span>
+                              <span className={`block truncate text-sm font-medium ${lesson.isCompleted ? "text-foreground" : "text-foreground"}`}>{lesson.title}</span>
                               <span className="text-xs text-muted-foreground">{lesson.duration || 0} min</span>
                             </div>
                             {lesson.isLocked && <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
