@@ -197,6 +197,38 @@ export interface Challenge {
   winnerId?: string
 }
 
+export interface DailyChallenge {
+  id: string
+  date: string
+  subjectId: string
+  subjectName: string
+  questions: DailyChallengeQuestion[]
+  isCompleted: boolean
+  score?: number
+  totalMarks: number
+}
+
+export interface DailyChallengeQuestion {
+  questionId: string
+  text: string
+  options: { id: string; text: string }[]
+  correctAnswer: string
+  solution: string
+  difficulty: "Easy" | "Medium" | "Hard"
+  userAnswer?: string
+}
+
+export interface Milestone {
+  id: string
+  title: string
+  description: string
+  icon: string
+  requirement: number
+  current: number
+  isUnlocked: boolean
+  category: "daily" | "streak" | "subject" | "overall"
+}
+
 export interface NavItem {
   label: string
   href: string

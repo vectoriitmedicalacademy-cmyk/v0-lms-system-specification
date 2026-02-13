@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Progress } from "@/components/ui/progress"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
@@ -17,12 +18,15 @@ import {
 import {
   Swords, Trophy, Clock, CheckCircle, XCircle,
   Send, Search, Zap, Target, Crown, ArrowRight,
-  Timer, Play, ShieldCheck, ChevronRight, ChevronLeft
+  Timer, Play, ShieldCheck, ChevronRight, ChevronLeft,
+  Flame, Star, Medal, Award, Lock, CheckCircle2, Circle,
+  Atom, FlaskConical, Calculator
 } from "lucide-react"
-import { mockChallenges, mockUsers, mockSubjects, mockQuestions } from "@/lib/mock-data"
-import type { Challenge, Question } from "@/lib/types"
+import { mockChallenges, mockUsers, mockSubjects, mockQuestions, mockDailyChallenges, mockMilestones } from "@/lib/mock-data"
+import type { Challenge, Question, DailyChallenge, DailyChallengeQuestion, Milestone } from "@/lib/types"
 
 const currentUserId = "u1"
+const todayStr = new Date().toISOString().slice(0, 10)
 
 const statusConfig: Record<Challenge["status"], { label: string; color: string; icon: React.ReactNode }> = {
   pending: { label: "Pending", color: "bg-primary/15 text-primary", icon: <Clock className="h-3.5 w-3.5" /> },
@@ -36,6 +40,40 @@ const difficultyColors: Record<string, string> = {
   Easy: "bg-chart-3/15 text-chart-3",
   Medium: "bg-primary/15 text-primary",
   Hard: "bg-destructive/15 text-destructive",
+}
+
+const subjectIcons: Record<string, React.ReactNode> = {
+  Physics: <Atom className="h-5 w-5" />,
+  Chemistry: <FlaskConical className="h-5 w-5" />,
+  Mathematics: <Calculator className="h-5 w-5" />,
+}
+
+const subjectColors: Record<string, string> = {
+  Physics: "from-blue-500/20 to-blue-600/5 border-blue-500/30",
+  Chemistry: "from-emerald-500/20 to-emerald-600/5 border-emerald-500/30",
+  Mathematics: "from-amber-500/20 to-amber-600/5 border-amber-500/30",
+}
+
+const subjectIconBg: Record<string, string> = {
+  Physics: "bg-blue-500/15 text-blue-600",
+  Chemistry: "bg-emerald-500/15 text-emerald-600",
+  Mathematics: "bg-amber-500/15 text-amber-600",
+}
+
+function milestoneIcon(icon: string) {
+  switch (icon) {
+    case "zap": return <Zap className="h-5 w-5" />
+    case "flame": return <Flame className="h-5 w-5" />
+    case "star": return <Star className="h-5 w-5" />
+    case "atom": return <Atom className="h-5 w-5" />
+    case "flask": return <FlaskConical className="h-5 w-5" />
+    case "calculator": return <Calculator className="h-5 w-5" />
+    case "trophy": return <Trophy className="h-5 w-5" />
+    case "crown": return <Crown className="h-5 w-5" />
+    case "target": return <Target className="h-5 w-5" />
+    case "medal": return <Medal className="h-5 w-5" />
+    default: return <Award className="h-5 w-5" />
+  }
 }
 
 function getInitials(name: string) {
@@ -52,6 +90,183 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`
 }
 
+// ===== Daily Challenge Quiz Component =====
+function DailyChallengeQuiz({
+  challenge,
+  onComplete,
+  onBack,
+}: {
+  challenge: DailyChallenge
+  onComplete: (score: number) => void
+  onBack: () => void
+}) {
+  const [currentQ, setCurrentQ] = useState(0)
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [submitted, setSubmitted] = useState(false)
+
+  const q = challenge.questions[currentQ]
+  const total = challenge.questions.length
+
+  function selectAnswer(optId: string) {
+    if (submitted) return
+    setAnswers(prev => ({ ...prev, [q.questionId]: optId }))
+  }
+
+  function handleSubmit() {
+    setSubmitted(true)
+    let score = 0
+    challenge.questions.forEach(cq => {
+      if (answers[cq.questionId] === cq.correctAnswer) score += 4
+    })
+    onComplete(score)
+  }
+
+  const answeredCount = Object.keys(answers).length
+  const isLast = currentQ === total - 1
+
+  return (
+    <div className="space-y-5">
+      {/* Progress bar */}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
+          <ChevronLeft className="h-4 w-4" /> Back
+        </Button>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{currentQ + 1}</span>/{total}
+        </div>
+      </div>
+      <Progress value={((currentQ + 1) / total) * 100} className="h-1.5" />
+
+      {/* Question */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <Badge className={`${difficultyColors[q.difficulty]} border-none text-xs`}>{q.difficulty}</Badge>
+          <span className="text-xs text-muted-foreground">4 marks</span>
+        </div>
+        <p className="text-base font-medium leading-relaxed text-foreground">{q.text}</p>
+
+        <div className="mt-6 space-y-3">
+          {q.options.map(opt => {
+            const isSelected = answers[q.questionId] === opt.id
+            const isCorrect = submitted && opt.id === q.correctAnswer
+            const isWrong = submitted && isSelected && opt.id !== q.correctAnswer
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => selectAnswer(opt.id)}
+                disabled={submitted}
+                className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+                  isCorrect
+                    ? "border-emerald-500 bg-emerald-500/10"
+                    : isWrong
+                    ? "border-destructive bg-destructive/10"
+                    : isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/30 hover:bg-muted/50"
+                }`}
+              >
+                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  isCorrect
+                    ? "bg-emerald-500 text-white"
+                    : isWrong
+                    ? "bg-destructive text-white"
+                    : isSelected
+                    ? "bg-foreground text-card"
+                    : "bg-muted text-muted-foreground"
+                }`}>
+                  {opt.id.toUpperCase()}
+                </div>
+                <span className="text-sm text-foreground">{opt.text}</span>
+                {isCorrect && <CheckCircle2 className="ml-auto h-5 w-5 text-emerald-500" />}
+                {isWrong && <XCircle className="ml-auto h-5 w-5 text-destructive" />}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Solution after submit */}
+        {submitted && (
+          <div className="mt-5 rounded-xl border border-border bg-muted/50 p-4">
+            <p className="mb-1 text-xs font-semibold text-muted-foreground">Solution</p>
+            <p className="text-sm leading-relaxed text-foreground">{q.solution}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Nav buttons */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={currentQ === 0}
+          onClick={() => setCurrentQ(prev => prev - 1)}
+          className="gap-1.5 rounded-full"
+        >
+          <ChevronLeft className="h-4 w-4" /> Previous
+        </Button>
+
+        {!submitted && isLast ? (
+          <Button
+            size="sm"
+            disabled={answeredCount < total}
+            onClick={handleSubmit}
+            className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90"
+          >
+            Submit ({answeredCount}/{total})
+          </Button>
+        ) : !submitted ? (
+          <Button
+            size="sm"
+            onClick={() => setCurrentQ(prev => prev + 1)}
+            className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90"
+          >
+            Next <ChevronRight className="h-4 w-4" />
+          </Button>
+        ) : !isLast ? (
+          <Button
+            size="sm"
+            onClick={() => setCurrentQ(prev => prev + 1)}
+            className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90"
+          >
+            Next <ChevronRight className="h-4 w-4" />
+          </Button>
+        ) : null}
+      </div>
+
+      {/* Question dots */}
+      <div className="flex items-center justify-center gap-2">
+        {challenge.questions.map((cq, i) => {
+          const answered = !!answers[cq.questionId]
+          const correct = submitted && answers[cq.questionId] === cq.correctAnswer
+          const wrong = submitted && answered && answers[cq.questionId] !== cq.correctAnswer
+          return (
+            <button
+              key={cq.questionId}
+              type="button"
+              onClick={() => setCurrentQ(i)}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                i === currentQ
+                  ? "bg-foreground text-card"
+                  : correct
+                  ? "bg-emerald-500 text-white"
+                  : wrong
+                  ? "bg-destructive text-white"
+                  : answered
+                  ? "bg-primary/20 text-primary"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {i + 1}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ===== Main Challenges Component =====
 export function StudentChallenges() {
   const [createOpen, setCreateOpen] = useState(false)
   const [selectedOpponent, setSelectedOpponent] = useState("")
@@ -60,10 +275,17 @@ export function StudentChallenges() {
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([])
   const [questionSearch, setQuestionSearch] = useState("")
   const [challenges, setChallenges] = useState(mockChallenges)
-  const [dialogStep, setDialogStep] = useState<1 | 2>(1) // Step 1: opponent/subject, Step 2: pick questions
+  const [dialogStep, setDialogStep] = useState<1 | 2>(1)
+
+  // Daily challenge state
+  const [dailyChallenges, setDailyChallenges] = useState(mockDailyChallenges)
+  const [activeDailyQuiz, setActiveDailyQuiz] = useState<string | null>(null)
+  const [milestones, setMilestones] = useState(mockMilestones)
+  const [showMilestones, setShowMilestones] = useState(false)
 
   const myUserId = currentUserId
 
+  // PvP filtering
   const received = challenges.filter(c => c.toUserId === myUserId && c.status === "pending")
   const sent = challenges.filter(c => c.fromUserId === myUserId && c.status === "pending")
   const active = challenges.filter(c =>
@@ -78,9 +300,20 @@ export function StudentChallenges() {
   const students = mockUsers.filter(u => u.role === "student" && u.id !== myUserId)
   const selectedSubjectObj = mockSubjects.find(s => s.id === selectedSubject)
 
-  // Filter questions by selected subject/chapter
+  // Daily challenge helpers
+  const todayDailies = dailyChallenges.filter(dc => dc.date === todayStr)
+  const completedToday = todayDailies.filter(dc => dc.isCompleted).length
+  const totalTodaySubjects = todayDailies.length
+
+  // Streak calculation (simplified)
+  const dailyStreak = 5 // mock streak
+
+  // Question picking for PvP
   const availableQuestions = useMemo(() => {
     if (!selectedSubjectObj || !selectedChapter) return []
+    if (selectedChapter === "__all__") {
+      return mockQuestions.filter(q => q.subject === selectedSubjectObj.name)
+    }
     const chapterObj = selectedSubjectObj.chapters.find(ch => ch.id === selectedChapter)
     if (!chapterObj) return []
     return mockQuestions.filter(
@@ -90,21 +323,13 @@ export function StudentChallenges() {
 
   const filteredQuestions = useMemo(() => {
     if (!questionSearch.trim()) return availableQuestions
-    const q = questionSearch.toLowerCase()
+    const s = questionSearch.toLowerCase()
     return availableQuestions.filter(
-      qn => qn.text.toLowerCase().includes(q) || qn.tags.some(t => t.toLowerCase().includes(q))
+      qn => qn.text.toLowerCase().includes(s) || qn.tags.some(t => t.toLowerCase().includes(s))
     )
   }, [availableQuestions, questionSearch])
 
-  // Also show all questions from that subject if chapter is "all"
-  const allSubjectQuestions = useMemo(() => {
-    if (!selectedSubjectObj) return []
-    return mockQuestions.filter(q => q.subject === selectedSubjectObj.name)
-  }, [selectedSubjectObj])
-
-  const questionsToShow = selectedChapter === "__all__" ? allSubjectQuestions : filteredQuestions
-
-  // Stats
+  // PvP stats
   const totalCompleted = history.filter(c => c.status === "completed").length
   const wins = history.filter(c => c.status === "completed" && c.winnerId === myUserId).length
   const winRate = totalCompleted > 0 ? Math.round((wins / totalCompleted) * 100) : 0
@@ -116,7 +341,7 @@ export function StudentChallenges() {
   }
 
   function selectAllVisible() {
-    const allIds = questionsToShow.map(q => q.id)
+    const allIds = filteredQuestions.map(q => q.id)
     const allSelected = allIds.every(id => selectedQuestionIds.includes(id))
     if (allSelected) {
       setSelectedQuestionIds(prev => prev.filter(id => !allIds.includes(id)))
@@ -128,7 +353,6 @@ export function StudentChallenges() {
   function handleAccept(id: string) {
     setChallenges(prev => prev.map(c => c.id === id ? { ...c, status: "accepted" as const } : c))
   }
-
   function handleDecline(id: string) {
     setChallenges(prev => prev.map(c => c.id === id ? { ...c, status: "declined" as const } : c))
   }
@@ -165,19 +389,39 @@ export function StudentChallenges() {
     setCreateOpen(false)
   }
 
-  function getOpponentName(challenge: Challenge) {
-    return challenge.fromUserId === myUserId ? challenge.toUserName : challenge.fromUserName
+  function handleDailyComplete(dcId: string, score: number) {
+    setDailyChallenges(prev => prev.map(dc =>
+      dc.id === dcId ? { ...dc, isCompleted: true, score } : dc
+    ))
+    setActiveDailyQuiz(null)
   }
 
-  function getOpponentInitials(challenge: Challenge) {
-    return getInitials(getOpponentName(challenge))
+  function getOpponentName(ch: Challenge) {
+    return ch.fromUserId === myUserId ? ch.toUserName : ch.fromUserName
   }
-
-  function didIWin(challenge: Challenge) {
-    return challenge.winnerId === myUserId
+  function getOpponentInitials(ch: Challenge) {
+    return getInitials(getOpponentName(ch))
+  }
+  function didIWin(ch: Challenge) {
+    return ch.winnerId === myUserId
   }
 
   const canProceedToStep2 = selectedOpponent && selectedSubject && selectedChapter
+
+  // If a daily quiz is active, show the quiz view
+  const activeDC = dailyChallenges.find(dc => dc.id === activeDailyQuiz)
+  if (activeDC) {
+    return (
+      <DailyChallengeQuiz
+        challenge={activeDC}
+        onComplete={(score) => handleDailyComplete(activeDC.id, score)}
+        onBack={() => setActiveDailyQuiz(null)}
+      />
+    )
+  }
+
+  const unlockedMilestones = milestones.filter(m => m.isUnlocked)
+  const lockedMilestones = milestones.filter(m => !m.isUnlocked)
 
   return (
     <div className="space-y-6">
@@ -185,14 +429,91 @@ export function StudentChallenges() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Challenges</h1>
-          <p className="text-sm text-muted-foreground">Challenge your batchmates and test your knowledge head-to-head</p>
+          <p className="text-sm text-muted-foreground">Daily practice questions and head-to-head battles</p>
         </div>
-        <Button onClick={openCreateDialog} className="gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90">
-          <Swords className="h-4 w-4" /> New Challenge
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => setShowMilestones(true)} className="gap-2 rounded-full">
+            <Trophy className="h-4 w-4 text-primary" /> Milestones
+            <Badge className="ml-1 h-5 min-w-5 rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">{unlockedMilestones.length}</Badge>
+          </Button>
+          <Button onClick={openCreateDialog} className="gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90">
+            <Swords className="h-4 w-4" /> PvP Challenge
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Strip */}
+      {/* ==================== DAILY CHALLENGES SECTION ==================== */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+              <Zap className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">{"Today's Daily Challenges"}</h2>
+              <p className="text-xs text-muted-foreground">5 questions per subject &middot; Earn milestones on completion</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-sm">
+              <Flame className="h-4 w-4 text-primary" />
+              <span className="font-bold text-foreground">{dailyStreak}</span>
+              <span className="text-muted-foreground">day streak</span>
+            </div>
+            <Badge className="gap-1 rounded-full bg-primary/15 text-primary border-none">
+              <CheckCircle className="h-3 w-3" /> {completedToday}/{totalTodaySubjects} done
+            </Badge>
+          </div>
+        </div>
+
+        {/* Subject cards */}
+        <div className="grid gap-4 md:grid-cols-3">
+          {todayDailies.map(dc => (
+            <Card key={dc.id} className={`overflow-hidden border bg-gradient-to-br ${subjectColors[dc.subjectName] || "from-muted to-muted/50 border-border"}`}>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${subjectIconBg[dc.subjectName] || "bg-muted text-muted-foreground"}`}>
+                    {subjectIcons[dc.subjectName] || <Zap className="h-5 w-5" />}
+                  </div>
+                  {dc.isCompleted ? (
+                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-xs font-bold text-emerald-600">{dc.score}/{dc.totalMarks}</span>
+                    </div>
+                  ) : (
+                    <Badge className="rounded-full bg-card/80 text-foreground border-none text-xs">5 Qs</Badge>
+                  )}
+                </div>
+
+                <h3 className="mt-4 text-lg font-bold text-foreground">{dc.subjectName}</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {dc.isCompleted
+                    ? `Scored ${dc.score}/${dc.totalMarks} marks`
+                    : "5 questions - 4 marks each"
+                  }
+                </p>
+
+                {dc.isCompleted ? (
+                  <div className="mt-4">
+                    <Progress value={(dc.score! / dc.totalMarks) * 100} className="h-2" />
+                    <p className="mt-1.5 text-xs text-muted-foreground">{Math.round((dc.score! / dc.totalMarks) * 100)}% accuracy</p>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => setActiveDailyQuiz(dc.id)}
+                    className="mt-4 w-full gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90"
+                    size="sm"
+                  >
+                    <Play className="h-3.5 w-3.5" /> Start Challenge
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* ==================== PVP STATS STRIP ==================== */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           { icon: <Swords className="h-5 w-5 text-primary" />, value: totalCompleted + active.length + sent.length, label: "Total Battles" },
@@ -212,7 +533,7 @@ export function StudentChallenges() {
         ))}
       </div>
 
-      {/* Incoming Challenges */}
+      {/* Incoming PvP Challenges */}
       {received.length > 0 && (
         <div>
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -258,7 +579,7 @@ export function StudentChallenges() {
         </div>
       )}
 
-      {/* Tabs: Active / Sent / History */}
+      {/* PvP Tabs: Active / Sent / History */}
       <Tabs defaultValue="active">
         <TabsList>
           <TabsTrigger value="active" className="gap-1.5">
@@ -419,7 +740,69 @@ export function StudentChallenges() {
         </TabsContent>
       </Tabs>
 
-      {/* Create Challenge Dialog - 2-step wizard */}
+      {/* ==================== MILESTONES DIALOG ==================== */}
+      <Dialog open={showMilestones} onOpenChange={setShowMilestones}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" /> Milestones & Achievements
+            </DialogTitle>
+            <DialogDescription>
+              Complete daily challenges to unlock milestones and earn recognition.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
+            {/* Unlocked */}
+            {unlockedMilestones.length > 0 && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unlocked</p>
+                <div className="space-y-2">
+                  {unlockedMilestones.map(m => (
+                    <div key={m.id} className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+                        {milestoneIcon(m.icon)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">{m.title}</p>
+                        <p className="text-xs text-muted-foreground">{m.description}</p>
+                      </div>
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Locked */}
+            {lockedMilestones.length > 0 && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">In Progress</p>
+                <div className="space-y-2">
+                  {lockedMilestones.map(m => (
+                    <div key={m.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        {milestoneIcon(m.icon)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">{m.title}</p>
+                        <p className="text-xs text-muted-foreground">{m.description}</p>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <Progress value={(m.current / m.requirement) * 100} className="h-1.5 flex-1" />
+                          <span className="text-[10px] font-bold text-muted-foreground">{m.current}/{m.requirement}</span>
+                        </div>
+                      </div>
+                      <Lock className="h-4 w-4 text-muted-foreground/40" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ==================== PVP CREATE DIALOG ==================== */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -440,7 +823,6 @@ export function StudentChallenges() {
 
           {dialogStep === 1 && (
             <div className="space-y-4 py-2">
-              {/* Opponent */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">Challenge who?</label>
                 <Select value={selectedOpponent} onValueChange={setSelectedOpponent}>
@@ -459,8 +841,6 @@ export function StudentChallenges() {
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Subject */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">Subject</label>
                 <Select value={selectedSubject} onValueChange={(v) => { setSelectedSubject(v); setSelectedChapter(""); setSelectedQuestionIds([]) }}>
@@ -472,8 +852,6 @@ export function StudentChallenges() {
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Chapter */}
               {selectedSubjectObj && (
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-foreground">Chapter</label>
@@ -493,7 +871,6 @@ export function StudentChallenges() {
 
           {dialogStep === 2 && (
             <div className="space-y-3 py-2">
-              {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -503,27 +880,22 @@ export function StudentChallenges() {
                   className="pl-9"
                 />
               </div>
-
-              {/* Select all toggle */}
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">
                   {selectedQuestionIds.length} question{selectedQuestionIds.length !== 1 ? "s" : ""} selected
                 </p>
                 <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={selectAllVisible}>
-                  {questionsToShow.length > 0 && questionsToShow.every(q => selectedQuestionIds.includes(q.id)) ? "Deselect All" : "Select All"}
+                  {filteredQuestions.length > 0 && filteredQuestions.every(q => selectedQuestionIds.includes(q.id)) ? "Deselect All" : "Select All"}
                 </Button>
               </div>
-
-              {/* Question list */}
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                {questionsToShow.length === 0 ? (
+                {filteredQuestions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <Search className="h-8 w-8 text-muted-foreground/40" />
-                    <p className="mt-2 text-sm text-muted-foreground">No questions found for this selection</p>
-                    <p className="text-xs text-muted-foreground/70">Try a different chapter or subject</p>
+                    <p className="mt-2 text-sm text-muted-foreground">No questions found</p>
                   </div>
                 ) : (
-                  questionsToShow.map((q, idx) => {
+                  filteredQuestions.map((q, idx) => {
                     const isSelected = selectedQuestionIds.includes(q.id)
                     return (
                       <button

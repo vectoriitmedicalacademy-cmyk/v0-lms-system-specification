@@ -1,7 +1,7 @@
 import type {
   User, Batch, Subject, Test, TestAttempt, DPP, CommunityPost,
   Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge,
-  Course, ChapterQuiz
+  Course, ChapterQuiz, DailyChallenge, DailyChallengeQuestion, Milestone
 } from "./types"
 
 // ---- Users ----
@@ -225,4 +225,89 @@ export const mockChallenges: Challenge[] = [
   { id: "ch4", fromUserId: "u2", fromUserName: "Priya Patel", toUserId: "u1", toUserName: "Aarav Sharma", subject: "Physics", chapter: "Thermodynamics", questionIds: ["q1", "q5"], status: "completed", createdAt: "2026-02-08T11:00:00", expiresAt: "2026-02-08T23:00:00", fromScore: 7, toScore: 9, winnerId: "u1" },
   { id: "ch5", fromUserId: "u4", fromUserName: "Sneha Gupta", toUserId: "u1", toUserName: "Aarav Sharma", subject: "Mathematics", chapter: "Algebra", questionIds: ["q3"], status: "declined", createdAt: "2026-02-07T16:00:00", expiresAt: "2026-02-08T04:00:00" },
   { id: "ch6", fromUserId: "u1", fromUserName: "Aarav Sharma", toUserId: "u5", toUserName: "Vikram Desai", subject: "Physics", chapter: "Mechanics", questionIds: ["q1", "q5"], status: "accepted", createdAt: "2026-02-12T08:00:00", expiresAt: "2026-02-12T20:00:00" },
+]
+
+// ---- Daily Challenges (5 per subject per day) ----
+const todayStr = new Date().toISOString().slice(0, 10)
+
+function makeDailyQ(id: string, text: string, opts: string[], correct: string, solution: string, difficulty: "Easy" | "Medium" | "Hard"): DailyChallengeQuestion {
+  return { questionId: id, text, options: opts.map((o, i) => ({ id: String.fromCharCode(97 + i), text: o })), correctAnswer: correct, solution, difficulty }
+}
+
+export const mockDailyChallenges: DailyChallenge[] = [
+  {
+    id: "dc-phy-today", date: todayStr, subjectId: "s1", subjectName: "Physics", isCompleted: false, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-p1", "A ball is thrown vertically upward with velocity 20 m/s. What is the maximum height? (g=10 m/s\u00B2)", ["10 m", "20 m", "30 m", "40 m"], "b", "h = u\u00B2/2g = 400/20 = 20 m", "Easy"),
+      makeDailyQ("dc-p2", "Two forces of 3N and 4N act at right angles. What is the resultant?", ["5 N", "7 N", "1 N", "12 N"], "a", "R = \u221A(9+16) = 5 N", "Easy"),
+      makeDailyQ("dc-p3", "A body moves in a circle of radius 2m with speed 4 m/s. What is centripetal acceleration?", ["2 m/s\u00B2", "4 m/s\u00B2", "8 m/s\u00B2", "16 m/s\u00B2"], "c", "a = v\u00B2/r = 16/2 = 8 m/s\u00B2", "Medium"),
+      makeDailyQ("dc-p4", "The SI unit of impulse is:", ["N", "N\u00B7s", "J", "W"], "b", "Impulse = Force \u00D7 Time = N\u00B7s", "Easy"),
+      makeDailyQ("dc-p5", "A spring of constant 100 N/m is compressed by 0.1 m. Find the PE stored.", ["0.5 J", "1 J", "5 J", "10 J"], "a", "PE = \u00BDkx\u00B2 = 0.5\u00D7100\u00D70.01 = 0.5 J", "Medium"),
+    ]
+  },
+  {
+    id: "dc-chem-today", date: todayStr, subjectId: "s2", subjectName: "Chemistry", isCompleted: false, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-c1", "The atomic number of Carbon is:", ["4", "6", "8", "12"], "b", "Carbon has 6 protons.", "Easy"),
+      makeDailyQ("dc-c2", "Which gas is evolved when zinc reacts with dilute HCl?", ["O\u2082", "H\u2082", "Cl\u2082", "N\u2082"], "b", "Zn + 2HCl \u2192 ZnCl\u2082 + H\u2082", "Easy"),
+      makeDailyQ("dc-c3", "The shape of methane molecule is:", ["Linear", "Trigonal Planar", "Tetrahedral", "Square Planar"], "c", "CH\u2084 has sp\u00B3 hybridization, tetrahedral shape.", "Medium"),
+      makeDailyQ("dc-c4", "Which of the following is the strongest acid?", ["HF", "HCl", "HBr", "HI"], "d", "Acid strength increases down the group: HI > HBr > HCl > HF.", "Hard"),
+      makeDailyQ("dc-c5", "The IUPAC name of CH\u2083CHO is:", ["Methanal", "Ethanal", "Propanal", "Acetone"], "b", "CH\u2083CHO is a 2-carbon aldehyde = Ethanal.", "Easy"),
+    ]
+  },
+  {
+    id: "dc-math-today", date: todayStr, subjectId: "s3", subjectName: "Mathematics", isCompleted: false, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-m1", "What is the derivative of sin(x)?", ["cos(x)", "-cos(x)", "sin(x)", "-sin(x)"], "a", "d/dx[sin(x)] = cos(x)", "Easy"),
+      makeDailyQ("dc-m2", "If log\u2081\u2080(x) = 3, then x = ?", ["30", "100", "1000", "10000"], "c", "10\u00B3 = 1000", "Easy"),
+      makeDailyQ("dc-m3", "The value of \u222B\u2080\u00B9 x\u00B2 dx is:", ["1/2", "1/3", "1/4", "1"], "b", "\u222B x\u00B2 dx = x\u00B3/3. From 0 to 1 = 1/3.", "Medium"),
+      makeDailyQ("dc-m4", "If A = {1,2,3} and B = {2,3,4}, find A \u2229 B.", ["{1,2,3,4}", "{2,3}", "{1,4}", "{}"], "b", "Intersection = common elements = {2,3}.", "Easy"),
+      makeDailyQ("dc-m5", "The sum of roots of x\u00B2 - 5x + 6 = 0 is:", ["5", "6", "-5", "-6"], "a", "Sum of roots = -b/a = 5.", "Easy"),
+    ]
+  },
+  // Yesterday's completed challenges
+  {
+    id: "dc-phy-yest", date: "2026-02-12", subjectId: "s1", subjectName: "Physics", isCompleted: true, score: 16, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-yp1", "Unit of frequency is:", ["Hz", "m/s", "Nm", "Pa"], "a", "Frequency is measured in Hertz (Hz).", "Easy"),
+      makeDailyQ("dc-yp2", "Speed of light in vacuum is approximately:", ["3\u00D710\u2075 m/s", "3\u00D710\u2078 m/s", "3\u00D710\u00B9\u2070 m/s", "3\u00D710\u00B3 m/s"], "b", "c \u2248 3\u00D710\u2078 m/s", "Easy"),
+      makeDailyQ("dc-yp3", "A convex lens has focal length +20 cm. Its power is:", ["5 D", "+5 D", "-5 D", "0.5 D"], "b", "P = 1/f = 1/0.2 = +5 D", "Medium"),
+      makeDailyQ("dc-yp4", "Ohm's law states:", ["V = IR", "V = I/R", "V = I + R", "V = R/I"], "a", "V = IR is Ohm's law.", "Easy"),
+      makeDailyQ("dc-yp5", "Which color has the longest wavelength?", ["Violet", "Blue", "Green", "Red"], "d", "Red has the longest wavelength in visible spectrum.", "Easy"),
+    ]
+  },
+  {
+    id: "dc-chem-yest", date: "2026-02-12", subjectId: "s2", subjectName: "Chemistry", isCompleted: true, score: 12, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-yc1", "The pH of pure water at 25\u00B0C is:", ["0", "7", "14", "1"], "b", "Pure water has pH = 7 (neutral).", "Easy"),
+      makeDailyQ("dc-yc2", "Number of moles in 44g of CO\u2082:", ["0.5", "1", "2", "22"], "b", "Molar mass of CO\u2082 = 44 g/mol, moles = 44/44 = 1.", "Easy"),
+      makeDailyQ("dc-yc3", "Diamond is an allotrope of:", ["Silicon", "Carbon", "Nitrogen", "Boron"], "b", "Diamond is a crystalline allotrope of carbon.", "Easy"),
+      makeDailyQ("dc-yc4", "The hybridization of carbon in ethylene is:", ["sp", "sp\u00B2", "sp\u00B3", "sp\u00B3d"], "b", "C=C double bond means sp\u00B2 hybridization.", "Medium"),
+      makeDailyQ("dc-yc5", "Avogadro's number is:", ["6.02\u00D710\u00B2\u00B3", "6.02\u00D710\u00B2\u2074", "3.14\u00D710\u00B2\u00B3", "1.6\u00D710\u207B\u00B9\u2079"], "a", "N_A = 6.022 \u00D7 10\u00B2\u00B3 mol\u207B\u00B9", "Easy"),
+    ]
+  },
+  {
+    id: "dc-math-yest", date: "2026-02-12", subjectId: "s3", subjectName: "Mathematics", isCompleted: true, score: 20, totalMarks: 20,
+    questions: [
+      makeDailyQ("dc-ym1", "The value of sin(90\u00B0) is:", ["0", "1", "-1", "0.5"], "b", "sin(90\u00B0) = 1", "Easy"),
+      makeDailyQ("dc-ym2", "How many diagonals does a pentagon have?", ["2", "3", "5", "10"], "c", "n(n-3)/2 = 5(2)/2 = 5", "Easy"),
+      makeDailyQ("dc-ym3", "If f(x) = 2x+3, then f\u207B\u00B9(x) = ?", ["(x-3)/2", "(x+3)/2", "2x-3", "3x+2"], "a", "y = 2x+3, x = (y-3)/2", "Medium"),
+      makeDailyQ("dc-ym4", "The determinant of a 2x2 identity matrix is:", ["0", "1", "2", "-1"], "b", "det(I) = 1", "Easy"),
+      makeDailyQ("dc-ym5", "lim(x\u21920) sin(x)/x = ?", ["0", "1", "\u221E", "undefined"], "b", "Classic limit = 1", "Easy"),
+    ]
+  },
+]
+
+// ---- Milestones / Achievements ----
+export const mockMilestones: Milestone[] = [
+  { id: "m1", title: "First Blood", description: "Complete your first daily challenge", icon: "zap", requirement: 1, current: 6, isUnlocked: true, category: "daily" },
+  { id: "m2", title: "Weekly Warrior", description: "Complete daily challenges for 7 days straight", icon: "flame", requirement: 7, current: 5, isUnlocked: false, category: "streak" },
+  { id: "m3", title: "Perfect Score", description: "Score 100% on a daily challenge", icon: "star", requirement: 1, current: 1, isUnlocked: true, category: "daily" },
+  { id: "m4", title: "Physics Pro", description: "Complete 30 Physics daily challenges", icon: "atom", requirement: 30, current: 12, isUnlocked: false, category: "subject" },
+  { id: "m5", title: "Chemistry Champ", description: "Complete 30 Chemistry daily challenges", icon: "flask", requirement: 30, current: 10, isUnlocked: false, category: "subject" },
+  { id: "m6", title: "Math Master", description: "Complete 30 Mathematics daily challenges", icon: "calculator", requirement: 30, current: 14, isUnlocked: false, category: "subject" },
+  { id: "m7", title: "Centurion", description: "Complete 100 daily challenges total", icon: "trophy", requirement: 100, current: 36, isUnlocked: false, category: "overall" },
+  { id: "m8", title: "Unstoppable", description: "Maintain a 30-day challenge streak", icon: "crown", requirement: 30, current: 5, isUnlocked: false, category: "streak" },
+  { id: "m9", title: "Triple Threat", description: "Complete all 3 subjects in a single day", icon: "target", requirement: 1, current: 1, isUnlocked: true, category: "daily" },
+  { id: "m10", title: "Consistent Learner", description: "Complete 50 daily challenges total", icon: "medal", requirement: 50, current: 36, isUnlocked: false, category: "overall" },
 ]
