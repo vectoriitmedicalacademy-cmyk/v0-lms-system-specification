@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { mockNotifications } from "@/lib/mock-data"
 import { motion, AnimatePresence } from "framer-motion"
+import { AtomIcon, MoleculeIcon, DNAHelix, FloatingMathSymbol, CircuitTrace } from "@/components/science-elements"
 
 interface NavItem {
   label: string
@@ -142,7 +143,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
           )}
-          <span className="relative z-10">{item.label}</span>
+          <span className="relative z-10 flex items-center gap-1">{item.label}</span>
           {item.badge && (
             <motion.span
               initial={{ scale: 0 }}
@@ -159,8 +160,15 @@ export function DashboardShell({ children }: DashboardShellProps) {
   )
 
   return (
-    <div className="flex h-screen" style={{ background: "hsl(var(--outer-bg))" }}>
-      <div className="flex h-full w-full flex-col">
+    <div className="relative flex h-screen" style={{ background: "hsl(var(--outer-bg))" }}>
+      {/* Science-themed outer background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute left-[3%] top-[2%]"><AtomIcon size={32} color="hsl(38, 92%, 40%)" /></div>
+        <div className="absolute right-[4%] bottom-[3%]"><MoleculeIcon size={28} color="hsl(38, 92%, 40%)" /></div>
+        <FloatingMathSymbol symbol={"\u03C0"} x={60} y={12} delay={0} className="!text-primary/10 !text-sm" />
+        <FloatingMathSymbol symbol={"\u03B8"} x={200} y={8} delay={1.5} className="!text-primary/10 !text-sm" />
+      </div>
+      <div className="relative z-10 flex h-full w-full flex-col">
         {/* Outer top link */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -212,9 +220,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <motion.div
                 whileHover={{ rotate: 5, scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground"
+                className="relative flex h-10 w-10 items-center justify-center rounded-lg bg-foreground"
               >
                 <GraduationCap className="h-5 w-5 text-card" />
+                {/* Tiny orbiting atom around logo on hover */}
+                <div className="pointer-events-none absolute -right-1 -top-1 opacity-70" aria-hidden="true">
+                  <AtomIcon size={16} color="hsl(var(--primary))" />
+                </div>
               </motion.div>
               <div>
                 <p className="text-sm font-extrabold tracking-tight text-foreground leading-tight">VECTOR</p>
@@ -222,8 +234,12 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </div>
             </motion.div>
 
-            <div className="flex flex-1 flex-col px-3 pt-6">
+            <div className="relative flex flex-1 flex-col px-3 pt-6">
               <SidebarNav />
+              {/* Subtle DNA helix decoration at bottom of nav */}
+              <div className="pointer-events-none mt-auto flex items-center justify-center pb-2 opacity-40" aria-hidden="true">
+                <DNAHelix height={60} color="hsl(var(--primary))" />
+              </div>
             </div>
 
             {/* Bottom user + Logout */}
@@ -305,7 +321,10 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   className="text-lg font-semibold text-foreground"
                 >
                   {role === "student" && activeView === "dashboard" ? (
-                    <>Hi {user.name.split(" ")[0]}, <span className="font-normal text-muted-foreground">{"You're back"}</span></>
+                    <span className="flex items-center gap-2">
+                      Hi {user.name.split(" ")[0]}, <span className="font-normal text-muted-foreground">{"You're back"}</span>
+                      <AtomIcon size={20} color="hsl(var(--primary))" />
+                    </span>
                   ) : (
                     navItems.find(n => n.id === activeView)?.label || "Dashboard"
                   )}

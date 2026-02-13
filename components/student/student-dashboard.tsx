@@ -12,6 +12,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
 import { motion } from "framer-motion"
+import { AtomIcon, MoleculeIcon, BeakerIcon, FloatingMathSymbol, CircuitTrace, OrbitalRing } from "@/components/science-elements"
 
 const chartAmber = "#f59e0b"
 
@@ -35,9 +36,9 @@ export function StudentDashboard() {
   const lastWatched = mockLessons.find(l => l.type === "video" && !l.isLocked)
 
   const subjectLetters = [
-    { letter: "P", name: "Physics", color: "hsl(217, 91%, 50%)", completion: progress.subjectProgress.find(s => s.subjectName === "Physics")?.completion || 0 },
-    { letter: "C", name: "Chemistry", color: "hsl(152, 60%, 42%)", completion: progress.subjectProgress.find(s => s.subjectName === "Chemistry")?.completion || 0 },
-    { letter: "M", name: "Mathematics", color: "hsl(38, 92%, 50%)", completion: progress.subjectProgress.find(s => s.subjectName === "Mathematics")?.completion || 0 },
+    { letter: "P", name: "Physics", color: "hsl(217, 91%, 50%)", completion: progress.subjectProgress.find(s => s.subjectName === "Physics")?.completion || 0, scienceEl: "atom" as const },
+    { letter: "C", name: "Chemistry", color: "hsl(152, 60%, 42%)", completion: progress.subjectProgress.find(s => s.subjectName === "Chemistry")?.completion || 0, scienceEl: "beaker" as const },
+    { letter: "M", name: "Mathematics", color: "hsl(38, 92%, 50%)", completion: progress.subjectProgress.find(s => s.subjectName === "Mathematics")?.completion || 0, scienceEl: "molecule" as const },
   ]
 
   return (
@@ -46,8 +47,12 @@ export function StudentDashboard() {
       <motion.div className="flex-1 space-y-5" variants={stagger} initial="initial" animate="animate">
         {/* Progress Banner */}
         <motion.div variants={fadeUp}>
-          <Card className="card-hover border-none bg-muted/60">
-            <CardContent className="flex items-center gap-6 p-5">
+          <Card className="card-hover relative overflow-hidden border-none bg-muted/60">
+            {/* Faint atom in background of progress card */}
+            <div className="pointer-events-none absolute -right-2 -top-2 opacity-30" aria-hidden="true">
+              <AtomIcon size={64} color="hsl(var(--primary))" />
+            </div>
+            <CardContent className="relative z-10 flex items-center gap-6 p-5">
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-foreground">Overall Progress</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -91,19 +96,29 @@ export function StudentDashboard() {
                     transition={{ duration: 0.45, delay: 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ scale: 1.05, y: -4 }}
                     whileTap={{ scale: 0.97 }}
-                    className="group flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl transition-shadow hover:shadow-lg"
+                    className="group relative flex aspect-[4/3] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl transition-shadow hover:shadow-lg"
                     style={{ backgroundColor: `${sub.color}20` }}
                   >
+                    {/* Science micro-element per subject */}
+                    <div className="pointer-events-none absolute right-1 top-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true">
+                      {sub.scienceEl === "atom" && <AtomIcon size={28} color={sub.color} />}
+                      {sub.scienceEl === "beaker" && <BeakerIcon size={24} color={sub.color} />}
+                      {sub.scienceEl === "molecule" && <MoleculeIcon size={26} color={sub.color} />}
+                    </div>
+                    {/* Faint circuit trace at bottom */}
+                    <div className="pointer-events-none absolute bottom-1 left-2 right-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true">
+                      <CircuitTrace width={90} color={sub.color} />
+                    </div>
                     <motion.span
-                      className="text-5xl font-black lg:text-6xl"
+                      className="relative z-10 text-5xl font-black lg:text-6xl"
                       style={{ color: sub.color }}
                       whileHover={{ scale: 1.1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 15 }}
                     >
                       {sub.letter}
                     </motion.span>
-                    <span className="mt-2 text-sm font-medium text-foreground">{sub.name}</span>
-                    <span className="text-xs text-muted-foreground">{sub.completion}% done</span>
+                    <span className="relative z-10 mt-2 text-sm font-medium text-foreground">{sub.name}</span>
+                    <span className="relative z-10 text-xs text-muted-foreground">{sub.completion}% done</span>
                   </motion.div>
                 ))}
               </div>
@@ -114,8 +129,11 @@ export function StudentDashboard() {
         {/* Bottom row - Flash Cards + Achievements */}
         <motion.div variants={fadeUp} className="grid grid-cols-2 gap-4">
           <motion.div whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-            <Card className="border-none bg-gradient-to-br from-primary/90 to-primary overflow-hidden">
-              <CardContent className="flex h-40 flex-col justify-between p-5">
+            <Card className="relative border-none bg-gradient-to-br from-primary/90 to-primary overflow-hidden">
+              <div className="pointer-events-none absolute right-2 top-2 opacity-40" aria-hidden="true">
+                <MoleculeIcon size={32} color="hsl(0, 0%, 100%)" />
+              </div>
+              <CardContent className="relative z-10 flex h-40 flex-col justify-between p-5">
                 <div>
                   <p className="text-sm font-bold text-primary-foreground">Check out our new flashcard feature for quick notes</p>
                 </div>
@@ -195,16 +213,19 @@ export function StudentDashboard() {
         <Card className="card-hover border-none bg-muted/60 overflow-hidden">
           <CardContent className="flex flex-col items-center p-6 text-center">
             <Badge className="mb-3 bg-primary/10 text-primary border-none text-xs">#IITian</Badge>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
-              <Avatar className="h-24 w-24 border-4 border-primary/20">
-                <AvatarFallback className="bg-muted text-2xl font-bold text-foreground">
-                  AS
-                </AvatarFallback>
-              </Avatar>
-            </motion.div>
+            <div className="relative">
+              <OrbitalRing size={112} color="hsl(var(--primary))" className="-left-2 -top-2" />
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                <Avatar className="h-24 w-24 border-4 border-primary/20">
+                  <AvatarFallback className="bg-muted text-2xl font-bold text-foreground">
+                    AS
+                  </AvatarFallback>
+                </Avatar>
+              </motion.div>
+            </div>
             <div className="mt-3 flex items-center gap-1.5">
               {["P", "M", "C"].map((l, i) => (
                 <motion.span
@@ -249,8 +270,11 @@ export function StudentDashboard() {
 
         {/* Promo Card */}
         <motion.div whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-          <Card className="border-none bg-gradient-to-br from-orange-400 to-orange-500 overflow-hidden">
-            <CardContent className="p-5">
+          <Card className="relative border-none bg-gradient-to-br from-orange-400 to-orange-500 overflow-hidden">
+            <div className="pointer-events-none absolute bottom-2 right-2 opacity-40" aria-hidden="true">
+              <BeakerIcon size={28} color="hsl(0, 0%, 100%)" />
+            </div>
+            <CardContent className="relative z-10 p-5">
               <p className="text-sm font-bold text-card">Check out our new flashcard feature for quick notes</p>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Badge className="mt-3 bg-card/20 text-card border-none cursor-pointer">Explore</Badge>

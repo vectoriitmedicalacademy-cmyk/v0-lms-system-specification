@@ -11,6 +11,7 @@ import {
   GraduationCap, BookOpen, Shield, Users, ArrowRight, Phone, Lock, Eye, EyeOff
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { AtomIcon, DNAHelix, MoleculeIcon, BeakerIcon, FloatingMathSymbol, CircuitTrace } from "@/components/science-elements"
 
 const roles: { role: Role; label: string; icon: React.ReactNode; desc: string }[] = [
   { role: "student", label: "Student", icon: <GraduationCap className="h-5 w-5" />, desc: "Access courses, tests & analytics" },
@@ -33,8 +34,25 @@ export function LoginScreen() {
   const [authMethod, setAuthMethod] = useState<"otp" | "password">("password")
 
   return (
-    <div className="flex min-h-screen" style={{ background: "hsl(var(--outer-bg))" }}>
-      <div className="flex w-full flex-col items-center justify-center p-4">
+    <div className="relative flex min-h-screen" style={{ background: "hsl(var(--outer-bg))" }}>
+      {/* Science background decorations */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute left-[8%] top-[12%]"><AtomIcon size={56} color="hsl(var(--primary))" /></div>
+        <div className="absolute right-[10%] top-[8%]"><MoleculeIcon size={44} color="hsl(38, 92%, 65%)" /></div>
+        <div className="absolute bottom-[10%] left-[5%]"><DNAHelix height={100} color="hsl(152, 60%, 55%)" /></div>
+        <div className="absolute bottom-[15%] right-[8%]"><BeakerIcon size={36} color="hsl(217, 91%, 65%)" /></div>
+        <div className="absolute right-[25%] top-[6%]"><CircuitTrace width={100} color="hsl(var(--primary))" /></div>
+        <FloatingMathSymbol symbol={"\u222B"} x={100} y={80} delay={0} className="!text-primary/20 !text-2xl" />
+        <FloatingMathSymbol symbol={"\u03A3"} x={300} y={50} delay={1} className="!text-primary/20 !text-xl" />
+        <FloatingMathSymbol symbol={"\u0394"} x={500} y={120} delay={0.5} className="!text-primary/20 !text-lg" />
+        <FloatingMathSymbol symbol={"\u03C0"} x={200} y={500} delay={2} className="!text-primary/20 !text-2xl" />
+        <FloatingMathSymbol symbol={"F=ma"} x={700} y={400} delay={1.5} className="!text-primary/15 !text-sm font-mono" />
+        <FloatingMathSymbol symbol={"E=mc\u00B2"} x={80} y={400} delay={3} className="!text-primary/15 !text-sm font-mono" />
+        <FloatingMathSymbol symbol={"\u221E"} x={600} y={60} delay={2.5} className="!text-primary/20 !text-xl" />
+        <FloatingMathSymbol symbol={"PV=nRT"} x={450} y={480} delay={1.8} className="!text-primary/10 !text-xs font-mono" />
+      </div>
+
+      <div className="relative z-10 flex w-full flex-col items-center justify-center p-4">
         {/* Inner white card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 20 }}
