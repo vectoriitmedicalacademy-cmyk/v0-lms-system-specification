@@ -265,6 +265,53 @@ export interface ExamAnnouncement {
   isNew: boolean
 }
 
+export interface JournalEntry {
+  id: string
+  date: string
+  title: string
+  content: string
+  mood: "great" | "good" | "okay" | "bad" | "terrible"
+  studyHours: number
+  tags: string[]
+  createdAt: string
+}
+
+export interface MistakeEntry {
+  id: string
+  subject: string
+  chapter: string
+  question: string
+  myAnswer: string
+  correctAnswer: string
+  whyWrong: string
+  conceptNote: string
+  isResolved: boolean
+  createdAt: string
+}
+
+export interface FormulaSheet {
+  id: string
+  subject: string
+  title: string
+  content: string
+  color: string
+  isFavorite: boolean
+  updatedAt: string
+}
+
+export interface WeeklyReflection {
+  id: string
+  weekStart: string
+  weekEnd: string
+  wentWell: string
+  didntGoWell: string
+  goalNextWeek: string
+  mentorReply?: string
+  mentorName?: string
+  isSubmitted: boolean
+  submittedAt?: string
+}
+
 export interface NavItem {
   label: string
   href: string

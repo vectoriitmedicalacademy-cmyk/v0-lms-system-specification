@@ -39,6 +39,9 @@ import { CommunityHub } from "@/components/community/community-hub"
 // Exam Info
 import { StudentExamInfo } from "@/components/student/student-exam-info"
 
+// Journal
+import { StudentJournal } from "@/components/student/student-journal"
+
 export default function Page() {
   const { role } = useAuth()
 
@@ -55,6 +58,7 @@ export default function Page() {
             case "tests": return <StudentTests />
             case "challenges": return <StudentChallenges />
             case "exam-info": return <StudentExamInfo />
+            case "journal": return <StudentJournal />
             case "analytics": return <StudentAnalytics />
             case "community": return <CommunityHub />
             case "payments": return <StudentPayments />
