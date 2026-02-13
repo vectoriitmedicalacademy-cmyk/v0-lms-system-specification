@@ -1,6 +1,7 @@
 import type {
   User, Batch, Subject, Test, TestAttempt, DPP, CommunityPost,
-  Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge
+  Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge,
+  Course, ChapterQuiz
 } from "./types"
 
 // ---- Users ----
@@ -22,6 +23,13 @@ export const mockBatches: Batch[] = [
   { id: "b1", name: "JEE Advanced 2026 - Alpha", target: "IIT-JEE", year: 2026, teacherIds: ["t1", "t2"], studentCount: 45 },
   { id: "b2", name: "NEET 2026 - Bravo", target: "NEET", year: 2026, teacherIds: ["t1", "t3"], studentCount: 60 },
   { id: "b3", name: "MHT-CET 2026 - Charlie", target: "MHT-CET", year: 2026, teacherIds: ["t3"], studentCount: 38 },
+]
+
+// ---- Courses ----
+export const mockCourses: Course[] = [
+  { id: "course1", name: "JEE Advanced 2026 - Alpha", target: "IIT-JEE", description: "Complete JEE Advanced preparation with Physics, Chemistry and Mathematics.", subjectIds: ["s1", "s2", "s3"], batchIds: ["b1"] },
+  { id: "course2", name: "NEET 2026 - Bravo", target: "NEET", description: "Full NEET syllabus covering Physics, Chemistry and Biology.", subjectIds: ["s1", "s2", "s4"], batchIds: ["b2"] },
+  { id: "course3", name: "MHT-CET 2026 - Charlie", target: "MHT-CET", description: "MHT-CET focused course for Maharashtra state entrance.", subjectIds: ["s1", "s2", "s3"], batchIds: ["b3"] },
 ]
 
 // ---- Subjects ----
@@ -73,6 +81,25 @@ export const mockLessons: Lesson[] = [
   { id: "l6", chapterId: "c3", title: "Wave Motion", type: "video", duration: 40, videoId: "dQw4w9WgXcQ", releaseDate: "2025-08-01", isLocked: true },
   { id: "l7", chapterId: "c5", title: "Bohr's Model", type: "video", duration: 35, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-05", isLocked: false },
   { id: "l8", chapterId: "c9", title: "Limits & Continuity", type: "video", duration: 60, videoId: "dQw4w9WgXcQ", releaseDate: "2025-07-01", isLocked: false },
+]
+
+// ---- Chapter Quizzes (mandatory end-of-chapter) ----
+export const mockChapterQuizzes: ChapterQuiz[] = [
+  { id: "cq1", chapterId: "c1", title: "Mechanics Chapter Quiz", questionIds: ["q1", "q5"], isMandatory: true, isCompleted: true, score: 8, totalMarks: 10 },
+  { id: "cq2", chapterId: "c2", title: "Thermodynamics Chapter Quiz", questionIds: ["q1"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq3", chapterId: "c3", title: "Waves & Optics Chapter Quiz", questionIds: ["q1"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq4", chapterId: "c4", title: "Electrodynamics Chapter Quiz", questionIds: ["q5"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq5", chapterId: "c5", title: "Atomic Structure Chapter Quiz", questionIds: ["q2"], isMandatory: true, isCompleted: true, score: 10, totalMarks: 10 },
+  { id: "cq6", chapterId: "c6", title: "Chemical Bonding Chapter Quiz", questionIds: ["q2"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq7", chapterId: "c7", title: "Organic Chemistry I Chapter Quiz", questionIds: ["q2"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq8", chapterId: "c8", title: "Physical Chemistry Chapter Quiz", questionIds: ["q2"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq9", chapterId: "c9", title: "Calculus Chapter Quiz", questionIds: ["q3"], isMandatory: true, isCompleted: true, score: 9, totalMarks: 10 },
+  { id: "cq10", chapterId: "c10", title: "Algebra Chapter Quiz", questionIds: ["q3"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq11", chapterId: "c11", title: "Coordinate Geometry Chapter Quiz", questionIds: ["q3"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq12", chapterId: "c12", title: "Trigonometry Chapter Quiz", questionIds: ["q3"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq13", chapterId: "c13", title: "Cell Biology Chapter Quiz", questionIds: ["q4"], isMandatory: true, isCompleted: true, score: 7, totalMarks: 10 },
+  { id: "cq14", chapterId: "c14", title: "Genetics Chapter Quiz", questionIds: ["q4"], isMandatory: true, isCompleted: false, totalMarks: 10 },
+  { id: "cq15", chapterId: "c15", title: "Human Physiology Chapter Quiz", questionIds: ["q4"], isMandatory: true, isCompleted: false, totalMarks: 10 },
 ]
 
 // ---- Questions ----

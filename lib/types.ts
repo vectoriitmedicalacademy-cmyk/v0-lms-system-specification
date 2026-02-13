@@ -21,12 +21,32 @@ export interface Batch {
   studentCount: number
 }
 
+export interface Course {
+  id: string
+  name: string
+  target: string
+  description: string
+  subjectIds: string[]
+  batchIds: string[]
+}
+
 export interface Subject {
   id: string
   name: string
   icon: string
   color: string
   chapters: Chapter[]
+}
+
+export interface ChapterQuiz {
+  id: string
+  chapterId: string
+  title: string
+  questionIds: string[]
+  isMandatory: boolean
+  isCompleted: boolean
+  score?: number
+  totalMarks: number
 }
 
 export interface Chapter {
