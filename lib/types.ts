@@ -229,6 +229,42 @@ export interface Milestone {
   category: "daily" | "streak" | "subject" | "overall"
 }
 
+export interface College {
+  id: string
+  name: string
+  shortName: string
+  type: "Engineering" | "Medical"
+  location: string
+  state: string
+  ranking: number
+  nirfRank?: number
+  acceptedExams: string[]
+  cutoffs: CollegeCutoff[]
+  websiteUrl: string
+  ownExam?: { name: string; url: string }
+  logoColor: string
+}
+
+export interface CollegeCutoff {
+  exam: string
+  year: number
+  category: string
+  openingRank: number
+  closingRank: number
+  branch?: string
+}
+
+export interface ExamAnnouncement {
+  id: string
+  exam: string
+  title: string
+  date: string
+  type: "registration" | "admit-card" | "result" | "schedule" | "update"
+  description: string
+  sourceUrl?: string
+  isNew: boolean
+}
+
 export interface NavItem {
   label: string
   href: string

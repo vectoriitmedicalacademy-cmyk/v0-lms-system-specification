@@ -1,7 +1,8 @@
 import type {
   User, Batch, Subject, Test, TestAttempt, DPP, CommunityPost,
   Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge,
-  Course, ChapterQuiz, DailyChallenge, DailyChallengeQuestion, Milestone
+  Course, ChapterQuiz, DailyChallenge, DailyChallengeQuestion, Milestone,
+  College, ExamAnnouncement
 } from "./types"
 
 // ---- Users ----
@@ -310,4 +311,78 @@ export const mockMilestones: Milestone[] = [
   { id: "m8", title: "Unstoppable", description: "Maintain a 30-day challenge streak", icon: "crown", requirement: 30, current: 5, isUnlocked: false, category: "streak" },
   { id: "m9", title: "Triple Threat", description: "Complete all 3 subjects in a single day", icon: "target", requirement: 1, current: 1, isUnlocked: true, category: "daily" },
   { id: "m10", title: "Consistent Learner", description: "Complete 50 daily challenges total", icon: "medal", requirement: 50, current: 36, isUnlocked: false, category: "overall" },
+]
+
+// ---- Colleges ----
+export const mockColleges: College[] = [
+  { id: "col1", name: "Indian Institute of Technology Bombay", shortName: "IIT Bombay", type: "Engineering", location: "Mumbai", state: "Maharashtra", ranking: 1, nirfRank: 3, acceptedExams: ["JEE Advanced"], cutoffs: [
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 1, closingRank: 114, branch: "Computer Science" },
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 115, closingRank: 382, branch: "Electrical Engineering" },
+    { exam: "JEE Advanced", year: 2025, category: "OBC-NCL", openingRank: 1, closingRank: 198, branch: "Computer Science" },
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 400, closingRank: 1100, branch: "Mechanical Engineering" },
+  ], websiteUrl: "https://www.iitb.ac.in", logoColor: "hsl(217, 91%, 50%)" },
+  { id: "col2", name: "Indian Institute of Technology Delhi", shortName: "IIT Delhi", type: "Engineering", location: "New Delhi", state: "Delhi", ranking: 2, nirfRank: 2, acceptedExams: ["JEE Advanced"], cutoffs: [
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 1, closingRank: 98, branch: "Computer Science" },
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 120, closingRank: 450, branch: "Electrical Engineering" },
+    { exam: "JEE Advanced", year: 2025, category: "OBC-NCL", openingRank: 1, closingRank: 175, branch: "Computer Science" },
+  ], websiteUrl: "https://www.iitd.ac.in", logoColor: "hsl(262, 52%, 55%)" },
+  { id: "col3", name: "Indian Institute of Technology Madras", shortName: "IIT Madras", type: "Engineering", location: "Chennai", state: "Tamil Nadu", ranking: 3, nirfRank: 1, acceptedExams: ["JEE Advanced"], cutoffs: [
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 1, closingRank: 107, branch: "Computer Science" },
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 200, closingRank: 600, branch: "Electrical Engineering" },
+  ], websiteUrl: "https://www.iitm.ac.in", logoColor: "hsl(0, 72%, 50%)" },
+  { id: "col4", name: "Indian Institute of Technology Kanpur", shortName: "IIT Kanpur", type: "Engineering", location: "Kanpur", state: "Uttar Pradesh", ranking: 4, nirfRank: 4, acceptedExams: ["JEE Advanced"], cutoffs: [
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 1, closingRank: 210, branch: "Computer Science" },
+    { exam: "JEE Advanced", year: 2025, category: "General", openingRank: 350, closingRank: 900, branch: "Electrical Engineering" },
+  ], websiteUrl: "https://www.iitk.ac.in", logoColor: "hsl(38, 92%, 50%)" },
+  { id: "col5", name: "National Institute of Technology Trichy", shortName: "NIT Trichy", type: "Engineering", location: "Tiruchirappalli", state: "Tamil Nadu", ranking: 5, nirfRank: 9, acceptedExams: ["JEE Main"], cutoffs: [
+    { exam: "JEE Main", year: 2025, category: "General", openingRank: 2500, closingRank: 8900, branch: "Computer Science" },
+    { exam: "JEE Main", year: 2025, category: "OBC-NCL", openingRank: 1200, closingRank: 4500, branch: "Computer Science" },
+  ], websiteUrl: "https://www.nitt.edu", logoColor: "hsl(152, 60%, 42%)" },
+  { id: "col6", name: "NIT Warangal", shortName: "NIT Warangal", type: "Engineering", location: "Warangal", state: "Telangana", ranking: 6, nirfRank: 10, acceptedExams: ["JEE Main"], cutoffs: [
+    { exam: "JEE Main", year: 2025, category: "General", openingRank: 3000, closingRank: 10500, branch: "Computer Science" },
+  ], websiteUrl: "https://www.nitw.ac.in", logoColor: "hsl(200, 70%, 45%)" },
+  { id: "col7", name: "BITS Pilani", shortName: "BITS Pilani", type: "Engineering", location: "Pilani", state: "Rajasthan", ranking: 7, nirfRank: 17, acceptedExams: ["BITSAT"], cutoffs: [
+    { exam: "BITSAT", year: 2025, category: "General", openingRank: 1, closingRank: 350, branch: "Computer Science" },
+    { exam: "BITSAT", year: 2025, category: "General", openingRank: 351, closingRank: 700, branch: "Electronics & Instrumentation" },
+  ], websiteUrl: "https://www.bits-pilani.ac.in", ownExam: { name: "BITSAT 2026", url: "https://www.bitsadmission.com" }, logoColor: "hsl(340, 60%, 50%)" },
+  { id: "col8", name: "VJTI Mumbai", shortName: "VJTI", type: "Engineering", location: "Mumbai", state: "Maharashtra", ranking: 8, acceptedExams: ["MHT-CET", "JEE Main"], cutoffs: [
+    { exam: "MHT-CET", year: 2025, category: "General", openingRank: 50, closingRank: 800, branch: "Computer Engineering" },
+    { exam: "JEE Main", year: 2025, category: "General", openingRank: 10000, closingRank: 25000, branch: "Computer Engineering" },
+  ], websiteUrl: "https://vjti.ac.in", logoColor: "hsl(25, 85%, 50%)" },
+  { id: "col9", name: "All India Institute of Medical Sciences Delhi", shortName: "AIIMS Delhi", type: "Medical", location: "New Delhi", state: "Delhi", ranking: 1, nirfRank: 1, acceptedExams: ["NEET UG"], cutoffs: [
+    { exam: "NEET UG", year: 2025, category: "General", openingRank: 1, closingRank: 60, branch: "MBBS" },
+    { exam: "NEET UG", year: 2025, category: "OBC-NCL", openingRank: 1, closingRank: 120, branch: "MBBS" },
+  ], websiteUrl: "https://www.aiims.edu", logoColor: "hsl(210, 80%, 45%)" },
+  { id: "col10", name: "Christian Medical College Vellore", shortName: "CMC Vellore", type: "Medical", location: "Vellore", state: "Tamil Nadu", ranking: 2, nirfRank: 5, acceptedExams: ["NEET UG"], cutoffs: [
+    { exam: "NEET UG", year: 2025, category: "General", openingRank: 10, closingRank: 150, branch: "MBBS" },
+  ], websiteUrl: "https://www.cmch-vellore.edu", logoColor: "hsl(152, 50%, 40%)" },
+  { id: "col11", name: "Armed Forces Medical College", shortName: "AFMC Pune", type: "Medical", location: "Pune", state: "Maharashtra", ranking: 3, nirfRank: 8, acceptedExams: ["NEET UG"], cutoffs: [
+    { exam: "NEET UG", year: 2025, category: "General", openingRank: 50, closingRank: 300, branch: "MBBS" },
+  ], websiteUrl: "https://afmc.nic.in", logoColor: "hsl(130, 55%, 35%)" },
+  { id: "col12", name: "Maulana Azad Medical College", shortName: "MAMC Delhi", type: "Medical", location: "New Delhi", state: "Delhi", ranking: 4, nirfRank: 6, acceptedExams: ["NEET UG"], cutoffs: [
+    { exam: "NEET UG", year: 2025, category: "General", openingRank: 20, closingRank: 90, branch: "MBBS" },
+  ], websiteUrl: "https://www.mamc.ac.in", logoColor: "hsl(0, 65%, 48%)" },
+  { id: "col13", name: "VIT Vellore", shortName: "VIT Vellore", type: "Engineering", location: "Vellore", state: "Tamil Nadu", ranking: 9, nirfRank: 12, acceptedExams: ["VITEEE"], cutoffs: [
+    { exam: "VITEEE", year: 2025, category: "General", openingRank: 1, closingRank: 5000, branch: "Computer Science" },
+  ], websiteUrl: "https://vit.ac.in", ownExam: { name: "VITEEE 2026", url: "https://vit.ac.in/admissions" }, logoColor: "hsl(45, 90%, 45%)" },
+  { id: "col14", name: "SRM Institute of Science and Technology", shortName: "SRM Chennai", type: "Engineering", location: "Chennai", state: "Tamil Nadu", ranking: 10, nirfRank: 19, acceptedExams: ["SRMJEEE"], cutoffs: [
+    { exam: "SRMJEEE", year: 2025, category: "General", openingRank: 1, closingRank: 10000, branch: "Computer Science" },
+  ], websiteUrl: "https://www.srmist.edu.in", ownExam: { name: "SRMJEEE 2026", url: "https://www.srmist.edu.in/admissions" }, logoColor: "hsl(220, 60%, 50%)" },
+  { id: "col15", name: "Manipal Institute of Technology", shortName: "MIT Manipal", type: "Engineering", location: "Manipal", state: "Karnataka", ranking: 11, nirfRank: 22, acceptedExams: ["MET"], cutoffs: [
+    { exam: "MET", year: 2025, category: "General", openingRank: 1, closingRank: 8000, branch: "Computer Science" },
+  ], websiteUrl: "https://manipal.edu", ownExam: { name: "MET 2026", url: "https://manipal.edu/mu/admissions.html" }, logoColor: "hsl(15, 80%, 50%)" },
+]
+
+// ---- Exam Announcements ----
+export const mockExamAnnouncements: ExamAnnouncement[] = [
+  { id: "ea1", exam: "JEE Main 2026", title: "JEE Main 2026 Session 2 Registration Open", date: "2026-02-10", type: "registration", description: "NTA has opened the registration window for JEE Main 2026 Session 2. Last date to apply is March 5, 2026. Exam is scheduled for April 2-15, 2026.", sourceUrl: "https://jeemain.nta.nic.in", isNew: true },
+  { id: "ea2", exam: "JEE Advanced 2026", title: "JEE Advanced 2026 Date Announced", date: "2026-02-08", type: "schedule", description: "IIT Bombay (organizing institute) has announced JEE Advanced 2026 will be held on May 18, 2026. Registration will begin after JEE Main Session 2 results.", sourceUrl: "https://jeeadv.ac.in", isNew: true },
+  { id: "ea3", exam: "NEET UG 2026", title: "NEET UG 2026 Application Form Released", date: "2026-02-05", type: "registration", description: "NTA has released the NEET UG 2026 application form. The exam is scheduled for May 4, 2026. Last date to fill the form is March 10, 2026.", sourceUrl: "https://neet.nta.nic.in", isNew: true },
+  { id: "ea4", exam: "MHT-CET 2026", title: "MHT-CET 2026 Exam Dates Released", date: "2026-02-01", type: "schedule", description: "Maharashtra CET Cell has announced MHT-CET 2026 PCM paper will be held from April 22-30, 2026. PCB paper from May 2-8, 2026.", sourceUrl: "https://cetcell.mahacet.org", isNew: false },
+  { id: "ea5", exam: "JEE Main 2026", title: "JEE Main Session 1 Results Published", date: "2026-01-28", type: "result", description: "NTA has declared JEE Main 2026 Session 1 results. Students can check their scores and percentile on the official website. Cutoff for JEE Advanced eligibility: 90 percentile (General).", sourceUrl: "https://jeemain.nta.nic.in", isNew: false },
+  { id: "ea6", exam: "BITSAT 2026", title: "BITSAT 2026 Registration Started", date: "2026-02-12", type: "registration", description: "BITS Pilani has opened BITSAT 2026 registration. The online exam will be conducted from May 20 to June 2, 2026. Apply before April 15.", sourceUrl: "https://www.bitsadmission.com", isNew: true },
+  { id: "ea7", exam: "JEE Main 2026", title: "JEE Main Session 1 Admit Card Released", date: "2026-01-15", type: "admit-card", description: "NTA has released the admit cards for JEE Main 2026 Session 1. Download from the official portal using your application number and date of birth.", isNew: false },
+  { id: "ea8", exam: "NEET UG 2026", title: "NEET UG 2026 Syllabus Updated", date: "2026-01-20", type: "update", description: "NMC has confirmed that NEET UG 2026 will follow the rationalized NCERT syllabus. Some chapters have been removed from Physics and Biology. Check the official notification.", isNew: false },
+  { id: "ea9", exam: "VITEEE 2026", title: "VITEEE 2026 Mock Test Available", date: "2026-02-11", type: "update", description: "VIT has released a free mock test for VITEEE 2026. Students can practice on the official portal. The actual exam window is from April 18-28.", sourceUrl: "https://vit.ac.in/admissions", isNew: true },
+  { id: "ea10", exam: "JEE Advanced 2026", title: "JEE Advanced 2026 Eligibility Criteria Updated", date: "2026-02-13", type: "update", description: "IIT Bombay has updated the eligibility criteria. Students must be in the top 2,50,000 of JEE Main 2026 (across both sessions). Age limit relaxed by 1 year for reserved categories.", isNew: true },
 ]
