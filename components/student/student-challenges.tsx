@@ -90,6 +90,124 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`
 }
 
+// ===== Solutions Review Component (view all solutions after completion) =====
+function SolutionsReview({
+  challenge,
+  answers,
+  onBack,
+}: {
+  challenge: DailyChallenge
+  answers: Record<string, string>
+  onBack: () => void
+}) {
+  const correctCount = challenge.questions.filter(q => answers[q.questionId] === q.correctAnswer).length
+  const score = correctCount * 4
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
+          <ChevronLeft className="h-4 w-4" /> Back to Challenges
+        </Button>
+      </div>
+
+      {/* Score summary card */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15">
+            <Trophy className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">{challenge.subjectName} - Solutions</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              You scored <span className="font-bold text-foreground">{score}/{challenge.totalMarks}</span> ({correctCount}/{challenge.questions.length} correct)
+            </p>
+          </div>
+          <div className="w-full max-w-xs">
+            <Progress value={(score / challenge.totalMarks) * 100} className="h-2" />
+          </div>
+        </div>
+      </div>
+
+      {/* All questions with solutions */}
+      <div className="space-y-4">
+        {challenge.questions.map((q, index) => {
+          const userAnswer = answers[q.questionId]
+          const isCorrect = userAnswer === q.correctAnswer
+          return (
+            <div key={q.questionId} className="rounded-2xl border border-border bg-card p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                  isCorrect ? "bg-emerald-500 text-white" : "bg-destructive text-white"
+                }`}>
+                  Q{index + 1}
+                </div>
+                <Badge className={`${difficultyColors[q.difficulty]} border-none text-xs`}>{q.difficulty}</Badge>
+                {isCorrect ? (
+                  <Badge className="gap-1 border-none bg-emerald-500/15 text-emerald-600 text-xs">
+                    <CheckCircle2 className="h-3 w-3" /> Correct
+                  </Badge>
+                ) : (
+                  <Badge className="gap-1 border-none bg-destructive/15 text-destructive text-xs">
+                    <XCircle className="h-3 w-3" /> Incorrect
+                  </Badge>
+                )}
+                <span className="ml-auto text-xs font-bold text-muted-foreground">{isCorrect ? "+4" : "0"} marks</span>
+              </div>
+
+              <p className="text-sm font-medium leading-relaxed text-foreground">{q.text}</p>
+
+              <div className="mt-4 space-y-2">
+                {q.options.map(opt => {
+                  const isUserPick = userAnswer === opt.id
+                  const isCorrectOpt = opt.id === q.correctAnswer
+                  return (
+                    <div
+                      key={opt.id}
+                      className={`flex items-center gap-3 rounded-xl border p-3 ${
+                        isCorrectOpt
+                          ? "border-emerald-500 bg-emerald-500/10"
+                          : isUserPick
+                          ? "border-destructive bg-destructive/10"
+                          : "border-border bg-card"
+                      }`}
+                    >
+                      <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        isCorrectOpt
+                          ? "bg-emerald-500 text-white"
+                          : isUserPick
+                          ? "bg-destructive text-white"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {opt.id.toUpperCase()}
+                      </div>
+                      <span className="flex-1 text-sm text-foreground">{opt.text}</span>
+                      {isCorrectOpt && <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-500" />}
+                      {isUserPick && !isCorrectOpt && <XCircle className="h-4 w-4 flex-shrink-0 text-destructive" />}
+                      {isUserPick && !isCorrectOpt && (
+                        <span className="text-[10px] font-medium text-destructive">Your answer</span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Solution explanation */}
+              <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <div className="mb-1 flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 text-primary" />
+                  <p className="text-xs font-semibold text-primary">Solution</p>
+                </div>
+                <p className="text-sm leading-relaxed text-foreground">{q.solution}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ===== Daily Challenge Quiz Component =====
 function DailyChallengeQuiz({
   challenge,
@@ -97,7 +215,7 @@ function DailyChallengeQuiz({
   onBack,
 }: {
   challenge: DailyChallenge
-  onComplete: (score: number) => void
+  onComplete: (score: number, answers: Record<string, string>) => void
   onBack: () => void
 }) {
   const [currentQ, setCurrentQ] = useState(0)
@@ -118,11 +236,92 @@ function DailyChallengeQuiz({
     challenge.questions.forEach(cq => {
       if (answers[cq.questionId] === cq.correctAnswer) score += 4
     })
-    onComplete(score)
+    onComplete(score, answers)
   }
 
   const answeredCount = Object.keys(answers).length
   const isLast = currentQ === total - 1
+
+  // After submit, show score summary with "View All Solutions" button
+  if (submitted) {
+    const correctCount = challenge.questions.filter(cq => answers[cq.questionId] === cq.correctAnswer).length
+    const totalScore = correctCount * 4
+    const accuracy = Math.round((correctCount / total) * 100)
+
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
+            <ChevronLeft className="h-4 w-4" /> Back
+          </Button>
+        </div>
+
+        {/* Result card */}
+        <div className="rounded-2xl border border-border bg-card p-8">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className={`flex h-20 w-20 items-center justify-center rounded-full ${accuracy >= 80 ? "bg-emerald-500/15" : accuracy >= 50 ? "bg-primary/15" : "bg-destructive/15"}`}>
+              {accuracy >= 80 ? <Trophy className="h-10 w-10 text-emerald-500" /> : accuracy >= 50 ? <Star className="h-10 w-10 text-primary" /> : <Target className="h-10 w-10 text-destructive" />}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {accuracy >= 80 ? "Excellent!" : accuracy >= 50 ? "Good Effort!" : "Keep Practicing!"}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">{challenge.subjectName} Daily Challenge</p>
+            </div>
+            <div className="flex items-center gap-8">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{totalScore}</p>
+                <p className="text-xs text-muted-foreground">out of {challenge.totalMarks}</p>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{correctCount}/{total}</p>
+                <p className="text-xs text-muted-foreground">correct</p>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div className="text-center">
+                <p className="text-3xl font-bold text-foreground">{accuracy}%</p>
+                <p className="text-xs text-muted-foreground">accuracy</p>
+              </div>
+            </div>
+
+            {/* Question result dots */}
+            <div className="flex items-center gap-2 pt-2">
+              {challenge.questions.map((cq, i) => {
+                const correct = answers[cq.questionId] === cq.correctAnswer
+                return (
+                  <div key={cq.questionId} className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold ${
+                    correct ? "bg-emerald-500 text-white" : "bg-destructive text-white"
+                  }`}>
+                    {correct ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center justify-center gap-3">
+          <Button variant="outline" onClick={onBack} className="gap-2 rounded-full">
+            Back to Challenges
+          </Button>
+          <Button
+            onClick={() => {
+              // Transition into inline solutions review
+              setSubmitted(false)
+              // We use a special trick: set a flag to show the solutions review
+              ;(window as any).__showSolutions = { challengeId: challenge.id, answers: { ...answers } }
+              onBack()
+            }}
+            className="gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90"
+          >
+            <Star className="h-4 w-4" /> View All Solutions
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-5">
@@ -148,50 +347,29 @@ function DailyChallengeQuiz({
         <div className="mt-6 space-y-3">
           {q.options.map(opt => {
             const isSelected = answers[q.questionId] === opt.id
-            const isCorrect = submitted && opt.id === q.correctAnswer
-            const isWrong = submitted && isSelected && opt.id !== q.correctAnswer
             return (
               <button
                 key={opt.id}
                 type="button"
                 onClick={() => selectAnswer(opt.id)}
-                disabled={submitted}
                 className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
-                  isCorrect
-                    ? "border-emerald-500 bg-emerald-500/10"
-                    : isWrong
-                    ? "border-destructive bg-destructive/10"
-                    : isSelected
+                  isSelected
                     ? "border-primary bg-primary/5"
                     : "border-border bg-card hover:border-primary/30 hover:bg-muted/50"
                 }`}
               >
                 <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  isCorrect
-                    ? "bg-emerald-500 text-white"
-                    : isWrong
-                    ? "bg-destructive text-white"
-                    : isSelected
+                  isSelected
                     ? "bg-foreground text-card"
                     : "bg-muted text-muted-foreground"
                 }`}>
                   {opt.id.toUpperCase()}
                 </div>
                 <span className="text-sm text-foreground">{opt.text}</span>
-                {isCorrect && <CheckCircle2 className="ml-auto h-5 w-5 text-emerald-500" />}
-                {isWrong && <XCircle className="ml-auto h-5 w-5 text-destructive" />}
               </button>
             )
           })}
         </div>
-
-        {/* Solution after submit */}
-        {submitted && (
-          <div className="mt-5 rounded-xl border border-border bg-muted/50 p-4">
-            <p className="mb-1 text-xs font-semibold text-muted-foreground">Solution</p>
-            <p className="text-sm leading-relaxed text-foreground">{q.solution}</p>
-          </div>
-        )}
       </div>
 
       {/* Nav buttons */}
@@ -206,7 +384,7 @@ function DailyChallengeQuiz({
           <ChevronLeft className="h-4 w-4" /> Previous
         </Button>
 
-        {!submitted && isLast ? (
+        {isLast ? (
           <Button
             size="sm"
             disabled={answeredCount < total}
@@ -215,7 +393,7 @@ function DailyChallengeQuiz({
           >
             Submit ({answeredCount}/{total})
           </Button>
-        ) : !submitted ? (
+        ) : (
           <Button
             size="sm"
             onClick={() => setCurrentQ(prev => prev + 1)}
@@ -223,23 +401,13 @@ function DailyChallengeQuiz({
           >
             Next <ChevronRight className="h-4 w-4" />
           </Button>
-        ) : !isLast ? (
-          <Button
-            size="sm"
-            onClick={() => setCurrentQ(prev => prev + 1)}
-            className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90"
-          >
-            Next <ChevronRight className="h-4 w-4" />
-          </Button>
-        ) : null}
+        )}
       </div>
 
       {/* Question dots */}
       <div className="flex items-center justify-center gap-2">
         {challenge.questions.map((cq, i) => {
           const answered = !!answers[cq.questionId]
-          const correct = submitted && answers[cq.questionId] === cq.correctAnswer
-          const wrong = submitted && answered && answers[cq.questionId] !== cq.correctAnswer
           return (
             <button
               key={cq.questionId}
@@ -248,10 +416,6 @@ function DailyChallengeQuiz({
               className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
                 i === currentQ
                   ? "bg-foreground text-card"
-                  : correct
-                  ? "bg-emerald-500 text-white"
-                  : wrong
-                  ? "bg-destructive text-white"
                   : answered
                   ? "bg-primary/20 text-primary"
                   : "bg-muted text-muted-foreground"
@@ -282,6 +446,9 @@ export function StudentChallenges() {
   const [activeDailyQuiz, setActiveDailyQuiz] = useState<string | null>(null)
   const [milestones, setMilestones] = useState(mockMilestones)
   const [showMilestones, setShowMilestones] = useState(false)
+  // Solutions review state
+  const [reviewingChallengeId, setReviewingChallengeId] = useState<string | null>(null)
+  const [savedAnswers, setSavedAnswers] = useState<Record<string, Record<string, string>>>({})
 
   const myUserId = currentUserId
 
@@ -389,10 +556,11 @@ export function StudentChallenges() {
     setCreateOpen(false)
   }
 
-  function handleDailyComplete(dcId: string, score: number) {
+  function handleDailyComplete(dcId: string, score: number, answers: Record<string, string>) {
     setDailyChallenges(prev => prev.map(dc =>
       dc.id === dcId ? { ...dc, isCompleted: true, score } : dc
     ))
+    setSavedAnswers(prev => ({ ...prev, [dcId]: answers }))
     setActiveDailyQuiz(null)
   }
 
@@ -408,14 +576,35 @@ export function StudentChallenges() {
 
   const canProceedToStep2 = selectedOpponent && selectedSubject && selectedChapter
 
+  // If reviewing solutions for a completed challenge
+  const reviewDC = dailyChallenges.find(dc => dc.id === reviewingChallengeId)
+  if (reviewDC && savedAnswers[reviewDC.id]) {
+    return (
+      <SolutionsReview
+        challenge={reviewDC}
+        answers={savedAnswers[reviewDC.id]}
+        onBack={() => setReviewingChallengeId(null)}
+      />
+    )
+  }
+
   // If a daily quiz is active, show the quiz view
   const activeDC = dailyChallenges.find(dc => dc.id === activeDailyQuiz)
   if (activeDC) {
     return (
       <DailyChallengeQuiz
         challenge={activeDC}
-        onComplete={(score) => handleDailyComplete(activeDC.id, score)}
-        onBack={() => setActiveDailyQuiz(null)}
+        onComplete={(score, answers) => handleDailyComplete(activeDC.id, score, answers)}
+        onBack={() => {
+          // Check if solutions review was requested
+          const solReq = (window as any).__showSolutions
+          if (solReq && solReq.challengeId === activeDC.id) {
+            setSavedAnswers(prev => ({ ...prev, [activeDC.id]: solReq.answers }))
+            setReviewingChallengeId(activeDC.id)
+            delete (window as any).__showSolutions
+          }
+          setActiveDailyQuiz(null)
+        }}
       />
     )
   }
@@ -497,6 +686,16 @@ export function StudentChallenges() {
                   <div className="mt-4">
                     <Progress value={(dc.score! / dc.totalMarks) * 100} className="h-2" />
                     <p className="mt-1.5 text-xs text-muted-foreground">{Math.round((dc.score! / dc.totalMarks) * 100)}% accuracy</p>
+                    {savedAnswers[dc.id] && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setReviewingChallengeId(dc.id)}
+                        className="mt-3 w-full gap-2 rounded-full"
+                      >
+                        <Star className="h-3.5 w-3.5" /> View Solutions
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <Button
