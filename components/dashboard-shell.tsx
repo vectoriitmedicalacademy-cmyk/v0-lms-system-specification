@@ -15,7 +15,7 @@ import {
   BarChart3, CreditCard, Bell, Settings, LogOut, Menu,
   GraduationCap, Shield, Users, Layers, Database,
   PenTool, Calendar, AlertTriangle, Eye, UserCheck,
-  HelpCircle, Search, MessageCircle, Swords, Landmark, NotebookPen, Coins
+  HelpCircle, Search, MessageCircle, Swords, Landmark, NotebookPen, Coins, Video
 } from "lucide-react"
 import { mockNotifications } from "@/lib/mock-data"
 import { motion, AnimatePresence } from "framer-motion"
@@ -35,6 +35,7 @@ const navConfig: Record<Role, NavItem[]> = {
     { label: "Challenges", icon: <Swords className="h-5 w-5" />, id: "challenges" },
     { label: "Exam Info", icon: <Landmark className="h-5 w-5" />, id: "exam-info" },
     { label: "Journal", icon: <NotebookPen className="h-5 w-5" />, id: "journal" },
+    { label: "1-on-1 Sessions", icon: <Video className="h-5 w-5" />, id: "sessions" },
     { label: "Vector Credits", icon: <Coins className="h-5 w-5" />, id: "credits" },
     { label: "Community", icon: <MessageSquare className="h-5 w-5" />, id: "community" },
     { label: "Progress", icon: <BarChart3 className="h-5 w-5" />, id: "analytics" },

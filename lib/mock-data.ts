@@ -3,7 +3,7 @@ import type {
   Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge,
   Course, ChapterQuiz, DailyChallenge, DailyChallengeQuestion, Milestone,
   College, ExamAnnouncement, JournalEntry, MistakeEntry, FormulaSheet, WeeklyReflection,
-  VectorCredit, CreditReward
+  VectorCredit, CreditReward, Teacher, CounsellingSlot, LiveDoubtSession
 } from "./types"
 
 // ---- Users ----
@@ -458,4 +458,45 @@ export const mockCreditRewards: CreditReward[] = [
   { id: "rw8",  title: "5% Fee Discount",             description: "Get 5% off your next installment. Stackable with other discounts.",                  cost: 1000, category: "discount",    icon: "percent",       isAvailable: true  },
   { id: "rw9",  title: "Priority Doubt Queue",        description: "Skip the queue - your doubts get answered first for 7 days.",                       cost: 400,  category: "extra",       icon: "zap",           isAvailable: true  },
   { id: "rw10", title: "Vector Hoodie",               description: "Premium Vector Academy hoodie. Limited edition.",                                    cost: 2500, category: "merch",       icon: "shirt",         isAvailable: false },
+]
+
+// ---- Teachers for Counselling ----
+export const mockTeachers: Teacher[] = [
+  { id: "t1", name: "Dr. Rajesh Kumar", subject: "Physics", rating: 4.9, totalSessions: 324, specialization: "Mechanics & Electrodynamics" },
+  { id: "t2", name: "Prof. Anita Singh", subject: "Mathematics", rating: 4.8, totalSessions: 278, specialization: "Calculus & Algebra" },
+  { id: "t3", name: "Dr. Suresh Iyer", subject: "Chemistry", rating: 4.7, totalSessions: 245, specialization: "Organic & Physical Chemistry" },
+  { id: "t4", name: "Dr. Meera Nair", subject: "Biology", rating: 4.9, totalSessions: 198, specialization: "Human Physiology & Genetics" },
+  { id: "t5", name: "Prof. Arun Joshi", subject: "Physics", rating: 4.6, totalSessions: 156, specialization: "Optics & Modern Physics" },
+  { id: "t6", name: "Dr. Kavita Reddy", subject: "Chemistry", rating: 4.8, totalSessions: 210, specialization: "Inorganic Chemistry & Coordination" },
+]
+
+// ---- Counselling / Teaching Slots ----
+export const mockCounsellingSlots: CounsellingSlot[] = [
+  // Available 1-on-1 slots
+  { id: "cs1", teacherId: "t1", teacherName: "Dr. Rajesh Kumar", subject: "Physics", date: "2026-02-14", startTime: "10:00", endTime: "10:30", type: "1-on-1", status: "available" },
+  { id: "cs2", teacherId: "t1", teacherName: "Dr. Rajesh Kumar", subject: "Physics", date: "2026-02-14", startTime: "11:00", endTime: "11:30", type: "1-on-1", status: "available" },
+  { id: "cs3", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", date: "2026-02-14", startTime: "14:00", endTime: "14:30", type: "1-on-1", status: "available" },
+  { id: "cs4", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", date: "2026-02-15", startTime: "10:00", endTime: "10:30", type: "1-on-1", status: "available" },
+  { id: "cs5", teacherId: "t3", teacherName: "Dr. Suresh Iyer", subject: "Chemistry", date: "2026-02-14", startTime: "15:00", endTime: "15:30", type: "1-on-1", status: "available" },
+  { id: "cs6", teacherId: "t3", teacherName: "Dr. Suresh Iyer", subject: "Chemistry", date: "2026-02-15", startTime: "11:00", endTime: "11:30", type: "1-on-1", status: "available" },
+  { id: "cs7", teacherId: "t5", teacherName: "Prof. Arun Joshi", subject: "Physics", date: "2026-02-15", startTime: "14:00", endTime: "14:30", type: "1-on-1", status: "available" },
+  { id: "cs8", teacherId: "t6", teacherName: "Dr. Kavita Reddy", subject: "Chemistry", date: "2026-02-15", startTime: "16:00", endTime: "16:30", type: "1-on-1", status: "available" },
+  { id: "cs9", teacherId: "t4", teacherName: "Dr. Meera Nair", subject: "Biology", date: "2026-02-14", startTime: "10:00", endTime: "10:30", type: "1-on-1", status: "available" },
+  { id: "cs10", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", date: "2026-02-16", startTime: "09:00", endTime: "09:30", type: "1-on-1", status: "available" },
+  // Booked 1-on-1 slots
+  { id: "cs11", teacherId: "t1", teacherName: "Dr. Rajesh Kumar", subject: "Physics", date: "2026-02-13", startTime: "16:00", endTime: "16:30", type: "1-on-1", status: "booked", bookedBy: "u1", bookedByName: "Aarav Sharma", topic: "Rotational mechanics doubt", meetLink: "https://meet.vector.edu/session-cs11" },
+  { id: "cs12", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", date: "2026-02-12", startTime: "15:00", endTime: "15:30", type: "1-on-1", status: "completed", bookedBy: "u1", bookedByName: "Aarav Sharma", topic: "Integration by parts", notes: "Covered ILATE rule and 5 practice problems. Student understood the concept well." },
+  { id: "cs13", teacherId: "t3", teacherName: "Dr. Suresh Iyer", subject: "Chemistry", date: "2026-02-11", startTime: "11:00", endTime: "11:30", type: "1-on-1", status: "completed", bookedBy: "u1", bookedByName: "Aarav Sharma", topic: "Named reactions confusion", notes: "Discussed Aldol, Cannizzaro, Wolff-Kishner. Provided summary table." },
+]
+
+// ---- Live Doubt Sessions (group) ----
+export const mockLiveDoubtSessions: LiveDoubtSession[] = [
+  { id: "lds1", teacherId: "t1", teacherName: "Dr. Rajesh Kumar", subject: "Physics", topic: "Electrostatics - Gauss's Law & Applications", scheduledAt: "2026-02-14T17:00:00", duration: 60, status: "upcoming", joinedCount: 18, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds1", description: "Open doubt session covering Gauss's law, electric flux, and its applications. Bring your specific doubts!" },
+  { id: "lds2", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", topic: "Definite Integration - PYQ Discussion", scheduledAt: "2026-02-14T18:30:00", duration: 45, status: "upcoming", joinedCount: 24, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds2", description: "Solving JEE Main & Advanced previous year questions on definite integration. Focus on techniques and shortcuts." },
+  { id: "lds3", teacherId: "t3", teacherName: "Dr. Suresh Iyer", subject: "Chemistry", topic: "Organic Chemistry - Reaction Mechanisms", scheduledAt: "2026-02-13T19:00:00", duration: 60, status: "live", joinedCount: 32, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds3", description: "Deep dive into SN1, SN2, E1, E2 mechanisms. Understanding when each pathway is favored." },
+  { id: "lds4", teacherId: "t5", teacherName: "Prof. Arun Joshi", subject: "Physics", topic: "Modern Physics - Photoelectric Effect & Bohr Model", scheduledAt: "2026-02-15T16:00:00", duration: 50, status: "upcoming", joinedCount: 12, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds4", description: "Complete revision of photoelectric effect, work function, and Bohr's model. Including numericals." },
+  { id: "lds5", teacherId: "t6", teacherName: "Dr. Kavita Reddy", subject: "Chemistry", topic: "Coordination Compounds - Naming & Isomerism", scheduledAt: "2026-02-15T18:00:00", duration: 45, status: "upcoming", joinedCount: 8, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds5", description: "IUPAC naming, types of isomerism in coordination compounds, and VBT/CFT basics." },
+  { id: "lds6", teacherId: "t4", teacherName: "Dr. Meera Nair", subject: "Biology", topic: "Human Physiology - Nervous & Endocrine System", scheduledAt: "2026-02-16T10:00:00", duration: 60, status: "upcoming", joinedCount: 15, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds6", description: "Comprehensive doubt session on neural signaling, hormones, and their regulation." },
+  { id: "lds7", teacherId: "t1", teacherName: "Dr. Rajesh Kumar", subject: "Physics", topic: "Mechanics Revision - Rapid Fire Doubts", scheduledAt: "2026-02-12T17:00:00", duration: 60, status: "ended", joinedCount: 41, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds7", description: "Rapid-fire doubt clearing on all Mechanics topics. 41 students attended." },
+  { id: "lds8", teacherId: "t2", teacherName: "Prof. Anita Singh", subject: "Mathematics", topic: "Probability & Statistics crash session", scheduledAt: "2026-02-11T18:00:00", duration: 50, status: "ended", joinedCount: 37, maxCapacity: 50, meetLink: "https://meet.vector.edu/live-lds8", description: "Covered Bayes theorem, random variables, and mean/variance. Great participation!" },
 ]

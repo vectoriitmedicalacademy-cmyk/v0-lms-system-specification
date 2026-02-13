@@ -332,6 +332,51 @@ export interface CreditReward {
   isAvailable: boolean
 }
 
+export interface Teacher {
+  id: string
+  name: string
+  subject: string
+  avatar?: string
+  rating: number
+  totalSessions: number
+  specialization: string
+}
+
+export interface CounsellingSlot {
+  id: string
+  teacherId: string
+  teacherName: string
+  subject: string
+  date: string
+  startTime: string
+  endTime: string
+  type: "1-on-1" | "group-doubt"
+  status: "available" | "booked" | "completed" | "cancelled"
+  bookedBy?: string
+  bookedByName?: string
+  topic?: string
+  maxParticipants?: number
+  currentParticipants?: number
+  joinedStudents?: { id: string; name: string }[]
+  meetLink?: string
+  notes?: string
+}
+
+export interface LiveDoubtSession {
+  id: string
+  teacherId: string
+  teacherName: string
+  subject: string
+  topic: string
+  scheduledAt: string
+  duration: number
+  status: "upcoming" | "live" | "ended"
+  joinedCount: number
+  maxCapacity: number
+  meetLink: string
+  description: string
+}
+
 export interface NavItem {
   label: string
   href: string
