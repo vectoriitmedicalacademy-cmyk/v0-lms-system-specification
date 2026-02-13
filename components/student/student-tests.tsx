@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Progress } from "@/components/ui/progress"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
@@ -16,9 +17,11 @@ import {
 import {
   Clock, Play, CheckCircle, Trophy, ArrowRight, BarChart3,
   Plus, Search, BookOpen, Shuffle, Zap, Target, GraduationCap,
-  ChevronRight, ChevronLeft, Timer, Brain
+  ChevronRight, ChevronLeft, Timer, Brain, FileText, XCircle,
+  CheckCircle2, Star, AlertCircle, Hourglass
 } from "lucide-react"
 import { mockTests, mockAttempts, mockDPPs, mockSubjects, mockQuestions } from "@/lib/mock-data"
+import type { DPP, Question } from "@/lib/types"
 
 interface SelfStudyQuiz {
   id: string
@@ -56,6 +59,94 @@ export function StudentTests() {
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([])
   const [questionSearch, setQuestionSearch] = useState("")
   const [dialogStep, setDialogStep] = useState<1 | 2>(1)
+
+  // DPP Mode Selection + Solver state
+  const [selectedDPP, setSelectedDPP] = useState<DPP | null>(null)
+  const [dppModeOpen, setDppModeOpen] = useState(false)
+  const [dppMode, setDppMode] = useState<"quiz" | "assignment" | null>(null)
+  const [dppActive, setDppActive] = useState(false)
+  const [dppAnswers, setDppAnswers] = useState<Record<string, string>>({})
+  const [dppCurrentQ, setDppCurrentQ] = useState(0)
+  const [dppSubmitted, setDppSubmitted] = useState(false)
+  const [dppTimeLeft, setDppTimeLeft] = useState(0)
+  const [dppTimerActive, setDppTimerActive] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Get questions for a DPP (use first N from mockQuestions matching the chapter)
+  const getDPPQuestions = useCallback((dpp: DPP): Question[] => {
+    // Get all questions, cycle them if needed for the questionCount
+    const allQs = mockQuestions
+    const questions: Question[] = []
+    for (let i = 0; i < dpp.questionCount && i < allQs.length; i++) {
+      questions.push(allQs[i % allQs.length])
+    }
+    return questions
+  }, [])
+
+  const dppQuestions = selectedDPP ? getDPPQuestions(selectedDPP) : []
+
+  // Timer effect for quiz mode
+  useEffect(() => {
+    if (dppTimerActive && dppTimeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setDppTimeLeft(prev => {
+          if (prev <= 1) {
+            setDppTimerActive(false)
+            setDppSubmitted(true)
+            if (timerRef.current) clearInterval(timerRef.current)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      return () => { if (timerRef.current) clearInterval(timerRef.current) }
+    }
+  }, [dppTimerActive, dppTimeLeft])
+
+  function openDPPMode(dpp: DPP) {
+    setSelectedDPP(dpp)
+    setDppModeOpen(true)
+    setDppMode(null)
+  }
+
+  function startDPP(mode: "quiz" | "assignment") {
+    setDppMode(mode)
+    setDppModeOpen(false)
+    setDppActive(true)
+    setDppAnswers({})
+    setDppCurrentQ(0)
+    setDppSubmitted(false)
+    if (mode === "quiz") {
+      // 1 minute per question
+      const totalTime = (selectedDPP?.questionCount || 5) * 60
+      setDppTimeLeft(totalTime)
+      setDppTimerActive(true)
+    } else {
+      setDppTimeLeft(0)
+      setDppTimerActive(false)
+    }
+  }
+
+  function closeDPPSolver() {
+    setDppActive(false)
+    setDppMode(null)
+    setSelectedDPP(null)
+    setDppSubmitted(false)
+    setDppTimerActive(false)
+    if (timerRef.current) clearInterval(timerRef.current)
+  }
+
+  function submitDPP() {
+    setDppSubmitted(true)
+    setDppTimerActive(false)
+    if (timerRef.current) clearInterval(timerRef.current)
+  }
+
+  function formatTime(seconds: number) {
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+  }
 
   const selectedSubjectObj = mockSubjects.find(s => s.id === selectedSubject)
 
@@ -134,7 +225,7 @@ export function StudentTests() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Assignments & Quiz</h1>
+        <h1 className="text-2xl font-bold text-foreground">Assignments</h1>
         <p className="text-sm text-muted-foreground">Upcoming tests, past results, daily practice, and self-study</p>
       </div>
 
@@ -239,10 +330,27 @@ export function StudentTests() {
                       <span>&middot;</span>
                       <span>Due: {new Date(dpp.deadline).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}</span>
                     </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant="outline" className="border-border text-[10px]">
+                        <Timer className="mr-1 h-2.5 w-2.5" /> {dpp.questionCount} min (Quiz)
+                      </Badge>
+                      <Badge variant="outline" className="border-border text-[10px]">
+                        <FileText className="mr-1 h-2.5 w-2.5" /> No limit (Assignment)
+                      </Badge>
+                    </div>
                   </div>
-                  <Button variant={isPast ? "outline" : "default"} className={`gap-2 rounded-full ${!isPast ? "bg-foreground text-card hover:bg-foreground/90" : ""}`}>
-                    {isPast ? "View Solutions" : "Attempt Now"} <ArrowRight className="h-4 w-4" />
-                  </Button>
+                  {isPast ? (
+                    <Button variant="outline" className="gap-2 rounded-full">
+                      View Solutions <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => openDPPMode(dpp)}
+                      className="gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90"
+                    >
+                      <Play className="h-4 w-4" /> Attempt Now
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             )
@@ -396,6 +504,284 @@ export function StudentTests() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* DPP Mode Selection Dialog */}
+      <Dialog open={dppModeOpen} onOpenChange={setDppModeOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Play className="h-5 w-5 text-primary" />
+              {selectedDPP?.title || "DPP"}
+            </DialogTitle>
+            <DialogDescription>Choose how you want to solve this practice sheet</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {/* Quiz Mode card */}
+            <button
+              type="button"
+              onClick={() => startDPP("quiz")}
+              className="group flex flex-col items-center gap-3 rounded-2xl border-2 border-border bg-card p-6 text-center transition-all hover:border-primary hover:bg-primary/5 hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15 transition-transform group-hover:scale-110">
+                <Timer className="h-8 w-8 text-destructive" />
+              </div>
+              <div>
+                <p className="text-base font-bold text-foreground">Quiz Mode</p>
+                <p className="mt-1 text-xs text-muted-foreground">Timed challenge with countdown</p>
+              </div>
+              <Badge className="border-none bg-destructive/15 text-destructive text-[10px]">
+                {selectedDPP?.questionCount || 5} min timer
+              </Badge>
+              <ul className="mt-1 space-y-1 text-left text-[11px] text-muted-foreground">
+                <li className="flex items-center gap-1"><Zap className="h-3 w-3 text-destructive" /> Countdown timer</li>
+                <li className="flex items-center gap-1"><Zap className="h-3 w-3 text-destructive" /> Auto-submit on timeout</li>
+                <li className="flex items-center gap-1"><Zap className="h-3 w-3 text-destructive" /> Exam-like pressure</li>
+              </ul>
+            </button>
+
+            {/* Assignment Mode card */}
+            <button
+              type="button"
+              onClick={() => startDPP("assignment")}
+              className="group flex flex-col items-center gap-3 rounded-2xl border-2 border-border bg-card p-6 text-center transition-all hover:border-primary hover:bg-primary/5 hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-chart-3/15 transition-transform group-hover:scale-110">
+                <FileText className="h-8 w-8 text-chart-3" />
+              </div>
+              <div>
+                <p className="text-base font-bold text-foreground">Assignment Mode</p>
+                <p className="mt-1 text-xs text-muted-foreground">Solve at your own pace</p>
+              </div>
+              <Badge className="border-none bg-chart-3/15 text-chart-3 text-[10px]">
+                No time limit
+              </Badge>
+              <ul className="mt-1 space-y-1 text-left text-[11px] text-muted-foreground">
+                <li className="flex items-center gap-1"><BookOpen className="h-3 w-3 text-chart-3" /> No timer pressure</li>
+                <li className="flex items-center gap-1"><BookOpen className="h-3 w-3 text-chart-3" /> Take your time</li>
+                <li className="flex items-center gap-1"><BookOpen className="h-3 w-3 text-chart-3" /> Self-paced learning</li>
+              </ul>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* DPP Solver Fullscreen Overlay */}
+      {dppActive && selectedDPP && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={closeDPPSolver} className="gap-1.5">
+                <ChevronLeft className="h-4 w-4" /> Exit
+              </Button>
+              <div className="h-5 w-px bg-border" />
+              <div>
+                <p className="text-sm font-bold text-foreground">{selectedDPP.title}</p>
+                <Badge className={`border-none text-[10px] ${dppMode === "quiz" ? "bg-destructive/15 text-destructive" : "bg-chart-3/15 text-chart-3"}`}>
+                  {dppMode === "quiz" ? <><Timer className="mr-1 h-2.5 w-2.5" /> Quiz Mode</> : <><FileText className="mr-1 h-2.5 w-2.5" /> Assignment Mode</>}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {/* Timer for quiz mode */}
+              {dppMode === "quiz" && !dppSubmitted && (
+                <div className={`flex items-center gap-2 rounded-full px-4 py-2 ${dppTimeLeft <= 60 ? "bg-destructive/15 animate-pulse" : "bg-muted"}`}>
+                  <Hourglass className={`h-4 w-4 ${dppTimeLeft <= 60 ? "text-destructive" : "text-muted-foreground"}`} />
+                  <span className={`font-mono text-lg font-bold ${dppTimeLeft <= 60 ? "text-destructive" : "text-foreground"}`}>
+                    {formatTime(dppTimeLeft)}
+                  </span>
+                </div>
+              )}
+              {dppMode === "assignment" && !dppSubmitted && (
+                <div className="flex items-center gap-2 rounded-full bg-muted px-4 py-2">
+                  <Clock className="h-4 w-4 text-chart-3" />
+                  <span className="text-sm font-medium text-chart-3">No time limit</span>
+                </div>
+              )}
+              <span className="text-sm text-muted-foreground">
+                {Object.keys(dppAnswers).length}/{dppQuestions.length} answered
+              </span>
+            </div>
+          </div>
+
+          <Progress value={((dppCurrentQ + 1) / dppQuestions.length) * 100} className="h-1" />
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-3xl p-6">
+              {!dppSubmitted && dppQuestions.length > 0 ? (
+                <>
+                  <div className="rounded-2xl border border-border bg-card p-6">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm font-bold text-card">
+                          {dppCurrentQ + 1}
+                        </span>
+                        <Badge className={`${difficultyColors[dppQuestions[dppCurrentQ].difficulty]} border-none text-xs`}>
+                          {dppQuestions[dppCurrentQ].difficulty}
+                        </Badge>
+                        <Badge variant="outline" className="border-border text-xs">{dppQuestions[dppCurrentQ].type}</Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">Question {dppCurrentQ + 1} of {dppQuestions.length}</span>
+                    </div>
+
+                    <p className="text-base font-medium leading-relaxed text-foreground">{dppQuestions[dppCurrentQ].text}</p>
+
+                    <div className="mt-6 space-y-3">
+                      {dppQuestions[dppCurrentQ].options.map(opt => {
+                        const isSelected = dppAnswers[dppQuestions[dppCurrentQ].id] === opt.id
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setDppAnswers(prev => ({ ...prev, [dppQuestions[dppCurrentQ].id]: opt.id }))}
+                            className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+                              isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30 hover:bg-muted/50"
+                            }`}
+                          >
+                            <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                              isSelected ? "bg-foreground text-card" : "bg-muted text-muted-foreground"
+                            }`}>
+                              {opt.id.toUpperCase()}
+                            </div>
+                            <span className="text-sm text-foreground">{opt.text}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <Button variant="outline" size="sm" disabled={dppCurrentQ === 0} onClick={() => setDppCurrentQ(prev => prev - 1)} className="gap-1.5 rounded-full">
+                      <ChevronLeft className="h-4 w-4" /> Previous
+                    </Button>
+                    {dppCurrentQ < dppQuestions.length - 1 ? (
+                      <Button size="sm" onClick={() => setDppCurrentQ(prev => prev + 1)} className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90">
+                        Next <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button size="sm" onClick={submitDPP} disabled={Object.keys(dppAnswers).length === 0} className="gap-1.5 rounded-full bg-foreground text-card hover:bg-foreground/90">
+                        Submit ({Object.keys(dppAnswers).length}/{dppQuestions.length})
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    {dppQuestions.map((q, i) => {
+                      const answered = !!dppAnswers[q.id]
+                      return (
+                        <button key={q.id} type="button" onClick={() => setDppCurrentQ(i)} className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                          i === dppCurrentQ ? "bg-foreground text-card" : answered ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                        }`}>
+                          {i + 1}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </>
+              ) : dppSubmitted ? (() => {
+                const correctCount = dppQuestions.filter(q => dppAnswers[q.id] === q.correctAnswer).length
+                const totalScore = correctCount * 4
+                const totalMarks = dppQuestions.length * 4
+                const accuracy = Math.round((correctCount / dppQuestions.length) * 100)
+                return (
+                  <div className="space-y-6">
+                    <div className="rounded-2xl border border-border bg-card p-8">
+                      <div className="flex flex-col items-center gap-4 text-center">
+                        <div className={`flex h-20 w-20 items-center justify-center rounded-full ${accuracy >= 80 ? "bg-chart-3/15" : accuracy >= 50 ? "bg-primary/15" : "bg-destructive/15"}`}>
+                          {accuracy >= 80 ? <Trophy className="h-10 w-10 text-chart-3" /> : accuracy >= 50 ? <Star className="h-10 w-10 text-primary" /> : <Target className="h-10 w-10 text-destructive" />}
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-foreground">
+                            {accuracy >= 80 ? "Excellent!" : accuracy >= 50 ? "Good Effort!" : "Keep Practicing!"}
+                          </h2>
+                          <p className="mt-1 text-sm text-muted-foreground">{selectedDPP.title}</p>
+                          <Badge className={`mt-2 border-none text-xs ${dppMode === "quiz" ? "bg-destructive/15 text-destructive" : "bg-chart-3/15 text-chart-3"}`}>
+                            {dppMode === "quiz" ? "Quiz Mode" : "Assignment Mode"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-8">
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-foreground">{totalScore}</p>
+                            <p className="text-xs text-muted-foreground">out of {totalMarks}</p>
+                          </div>
+                          <div className="h-12 w-px bg-border" />
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-foreground">{correctCount}/{dppQuestions.length}</p>
+                            <p className="text-xs text-muted-foreground">correct</p>
+                          </div>
+                          <div className="h-12 w-px bg-border" />
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-foreground">{accuracy}%</p>
+                            <p className="text-xs text-muted-foreground">accuracy</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-foreground">Solutions</h3>
+                    {dppQuestions.map((q, index) => {
+                      const userAnswer = dppAnswers[q.id]
+                      const isCorrect = userAnswer === q.correctAnswer
+                      return (
+                        <div key={q.id} className="rounded-2xl border border-border bg-card p-5">
+                          <div className="mb-3 flex items-center gap-2">
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${isCorrect ? "bg-chart-3 text-white" : "bg-destructive text-white"}`}>
+                              Q{index + 1}
+                            </div>
+                            <Badge className={`${difficultyColors[q.difficulty]} border-none text-xs`}>{q.difficulty}</Badge>
+                            {isCorrect ? (
+                              <Badge className="gap-1 border-none bg-chart-3/15 text-chart-3 text-xs"><CheckCircle2 className="h-3 w-3" /> Correct</Badge>
+                            ) : (
+                              <Badge className="gap-1 border-none bg-destructive/15 text-destructive text-xs"><XCircle className="h-3 w-3" /> Incorrect</Badge>
+                            )}
+                            {!userAnswer && (
+                              <Badge className="gap-1 border-none bg-muted text-muted-foreground text-xs"><AlertCircle className="h-3 w-3" /> Unanswered</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm font-medium leading-relaxed text-foreground">{q.text}</p>
+                          <div className="mt-4 space-y-2">
+                            {q.options.map(opt => {
+                              const isUserPick = userAnswer === opt.id
+                              const isCorrectOpt = opt.id === q.correctAnswer
+                              return (
+                                <div key={opt.id} className={`flex items-center gap-3 rounded-xl border p-3 ${
+                                  isCorrectOpt ? "border-chart-3 bg-chart-3/10" : isUserPick ? "border-destructive bg-destructive/10" : "border-border bg-card"
+                                }`}>
+                                  <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                                    isCorrectOpt ? "bg-chart-3 text-white" : isUserPick ? "bg-destructive text-white" : "bg-muted text-muted-foreground"
+                                  }`}>{opt.id.toUpperCase()}</div>
+                                  <span className="flex-1 text-sm text-foreground">{opt.text}</span>
+                                  {isCorrectOpt && <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-chart-3" />}
+                                  {isUserPick && !isCorrectOpt && <XCircle className="h-4 w-4 flex-shrink-0 text-destructive" />}
+                                  {isUserPick && !isCorrectOpt && <span className="text-[10px] font-medium text-destructive">Your answer</span>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                          <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                            <div className="mb-1 flex items-center gap-1.5">
+                              <Star className="h-3.5 w-3.5 text-primary" />
+                              <p className="text-xs font-semibold text-primary">Solution</p>
+                            </div>
+                            <p className="text-sm leading-relaxed text-foreground">{q.solution}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    <div className="flex justify-center pb-6">
+                      <Button onClick={closeDPPSolver} className="gap-2 rounded-full bg-foreground text-card hover:bg-foreground/90">
+                        <ArrowRight className="h-4 w-4" /> Back to DPPs
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })() : null}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Self-Study Quiz Dialog - 2-step wizard */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
