@@ -32,7 +32,6 @@ const navConfig: Record<Role, NavItem[]> = {
     { label: "Home", icon: <Home className="h-5 w-5" />, id: "dashboard" },
     { label: "View Courses", icon: <BookOpen className="h-5 w-5" />, id: "courses" },
     { label: "Assignments & Quiz", icon: <ClipboardList className="h-5 w-5" />, id: "tests" },
-    { label: "Video Lectures", icon: <Eye className="h-5 w-5" />, id: "videos" },
     { label: "Challenges", icon: <Swords className="h-5 w-5" />, id: "challenges" },
     { label: "Community", icon: <MessageSquare className="h-5 w-5" />, id: "community" },
     { label: "Progress", icon: <BarChart3 className="h-5 w-5" />, id: "analytics" },

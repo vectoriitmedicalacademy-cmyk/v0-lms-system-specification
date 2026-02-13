@@ -8,7 +8,6 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { StudentDashboard } from "@/components/student/student-dashboard"
 import { StudentCourses } from "@/components/student/student-courses"
 import { StudentTests } from "@/components/student/student-tests"
-import { VideoPlayer } from "@/components/student/video-player"
 import { StudentAnalytics } from "@/components/student/student-analytics"
 import { StudentPayments } from "@/components/student/student-payments"
 
@@ -51,7 +50,6 @@ export default function Page() {
             case "dashboard": return <StudentDashboard />
             case "courses": return <StudentCourses />
             case "tests": return <StudentTests />
-            case "videos": return <VideoPlayer />
             case "challenges": return <StudentChallenges />
             case "analytics": return <StudentAnalytics />
             case "community": return <CommunityHub />
