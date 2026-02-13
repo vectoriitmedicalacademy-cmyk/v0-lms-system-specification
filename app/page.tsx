@@ -42,6 +42,9 @@ import { StudentExamInfo } from "@/components/student/student-exam-info"
 // Journal
 import { StudentJournal } from "@/components/student/student-journal"
 
+// Vector Credits
+import { StudentCredits } from "@/components/student/student-credits"
+
 export default function Page() {
   const { role } = useAuth()
 
@@ -59,6 +62,7 @@ export default function Page() {
             case "challenges": return <StudentChallenges />
             case "exam-info": return <StudentExamInfo />
             case "journal": return <StudentJournal />
+            case "credits": return <StudentCredits />
             case "analytics": return <StudentAnalytics />
             case "community": return <CommunityHub />
             case "payments": return <StudentPayments />

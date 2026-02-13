@@ -312,6 +312,26 @@ export interface WeeklyReflection {
   submittedAt?: string
 }
 
+export interface VectorCredit {
+  id: string
+  userId: string
+  amount: number
+  type: "earned" | "redeemed"
+  source: "assignment" | "quiz" | "chapter-quiz" | "daily-challenge" | "test" | "streak" | "milestone" | "referral" | "redemption"
+  description: string
+  date: string
+}
+
+export interface CreditReward {
+  id: string
+  title: string
+  description: string
+  cost: number
+  category: "discount" | "merch" | "extra" | "certificate"
+  icon: string
+  isAvailable: boolean
+}
+
 export interface NavItem {
   label: string
   href: string

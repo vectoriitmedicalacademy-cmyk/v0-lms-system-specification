@@ -2,7 +2,8 @@ import type {
   User, Batch, Subject, Test, TestAttempt, DPP, CommunityPost,
   Notification, Payment, StudentProgress, Lesson, Question, Attendance, Challenge,
   Course, ChapterQuiz, DailyChallenge, DailyChallengeQuestion, Milestone,
-  College, ExamAnnouncement, JournalEntry, MistakeEntry, FormulaSheet, WeeklyReflection
+  College, ExamAnnouncement, JournalEntry, MistakeEntry, FormulaSheet, WeeklyReflection,
+  VectorCredit, CreditReward
 } from "./types"
 
 // ---- Users ----
@@ -419,4 +420,42 @@ export const mockWeeklyReflections: WeeklyReflection[] = [
   { id: "wr1", weekStart: "2026-02-03", weekEnd: "2026-02-09", wentWell: "Completed the entire Mechanics revision. Scored 80% in Part Test 1. Maintained a 7-day study streak. Made formula sheets for Physics.", didntGoWell: "Organic Chemistry is still weak. Skipped 2 DPPs. Phone usage was too high on Monday and Thursday.", goalNextWeek: "Complete Organic Chemistry named reactions. Attempt all DPPs on time. Keep phone in another room during study.", mentorReply: "Good improvement on Physics! For Organic, try the reaction-condition mapping technique I showed in class. Keep the streak going!", mentorName: "Dr. Rajesh Kumar", isSubmitted: true, submittedAt: "2026-02-09T22:00:00" },
   { id: "wr2", weekStart: "2026-01-27", weekEnd: "2026-02-02", wentWell: "Started solving PYQs for Maths. Improved time management in mock tests. Attended all lectures on time.", didntGoWell: "Chemistry accuracy dropped. Felt burnt out on Saturday. Didn't revise Thermodynamics as planned.", goalNextWeek: "Revise Thermodynamics. Solve 50 Chemistry MCQs. Take a proper break on Sunday evening.", mentorReply: "Burnout is real - make sure to rest. Your Maths improvement is impressive. Let's focus on Chemistry weak areas in next week's doubt session.", mentorName: "Dr. Rajesh Kumar", isSubmitted: true, submittedAt: "2026-02-02T21:30:00" },
   { id: "wr3", weekStart: "2026-02-10", weekEnd: "2026-02-16", wentWell: "", didntGoWell: "", goalNextWeek: "", isSubmitted: false },
+]
+
+// ---- Vector Credits (karma points) ----
+export const mockVectorCredits: VectorCredit[] = [
+  { id: "vc1",  userId: "u1", amount: 50,  type: "earned",   source: "assignment",      description: "Completed Mechanics DPP 1",              date: "2026-02-13T14:00:00" },
+  { id: "vc2",  userId: "u1", amount: 30,  type: "earned",   source: "quiz",            description: "Scored 80%+ on Calculus Chapter Quiz",   date: "2026-02-13T11:00:00" },
+  { id: "vc3",  userId: "u1", amount: 100, type: "earned",   source: "test",            description: "Rank in Top 10 - Part Test 1",           date: "2026-02-12T16:00:00" },
+  { id: "vc4",  userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Physics Daily Challenge completed",       date: "2026-02-12T20:00:00" },
+  { id: "vc5",  userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Chemistry Daily Challenge completed",     date: "2026-02-12T20:30:00" },
+  { id: "vc6",  userId: "u1", amount: 40,  type: "earned",   source: "daily-challenge",  description: "100% score - Maths Daily Challenge",      date: "2026-02-12T21:00:00" },
+  { id: "vc7",  userId: "u1", amount: 75,  type: "earned",   source: "streak",          description: "14-day study streak bonus",               date: "2026-02-12T00:00:00" },
+  { id: "vc8",  userId: "u1", amount: 150, type: "earned",   source: "milestone",       description: "Milestone unlocked: Triple Threat",       date: "2026-02-11T22:00:00" },
+  { id: "vc9",  userId: "u1", amount: 50,  type: "earned",   source: "chapter-quiz",    description: "Atomic Structure Quiz - Perfect Score",   date: "2026-02-11T15:00:00" },
+  { id: "vc10", userId: "u1", amount: 30,  type: "earned",   source: "assignment",      description: "Completed Thermo DPP 1 before deadline",  date: "2026-02-11T10:00:00" },
+  { id: "vc11", userId: "u1", amount: 100, type: "earned",   source: "test",            description: "Scored 80%+ on Mechanics Chapter Test",   date: "2026-02-10T12:00:00" },
+  { id: "vc12", userId: "u1", amount: 50,  type: "earned",   source: "referral",        description: "Referred Sneha Gupta to Vector",          date: "2026-02-09T10:00:00" },
+  { id: "vc13", userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Physics Daily Challenge completed",       date: "2026-02-09T19:00:00" },
+  { id: "vc14", userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Chemistry Daily Challenge completed",     date: "2026-02-09T19:30:00" },
+  { id: "vc15", userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Maths Daily Challenge completed",         date: "2026-02-09T20:00:00" },
+  { id: "vc16", userId: "u1", amount: 200, type: "redeemed", source: "redemption",      description: "Redeemed: Extra Mock Test Access",        date: "2026-02-08T14:00:00" },
+  { id: "vc17", userId: "u1", amount: 30,  type: "earned",   source: "assignment",      description: "Completed Atomic Structure DPP",          date: "2026-02-08T11:00:00" },
+  { id: "vc18", userId: "u1", amount: 100, type: "earned",   source: "milestone",       description: "Milestone unlocked: First Blood",         date: "2026-02-07T21:00:00" },
+  { id: "vc19", userId: "u1", amount: 50,  type: "earned",   source: "test",            description: "Completed JEE PYQ practice set",          date: "2026-02-06T16:00:00" },
+  { id: "vc20", userId: "u1", amount: 25,  type: "earned",   source: "daily-challenge",  description: "Physics Daily Challenge completed",       date: "2026-02-06T19:00:00" },
+]
+
+// ---- Credit Rewards (redemption catalog) ----
+export const mockCreditRewards: CreditReward[] = [
+  { id: "rw1",  title: "10% Fee Discount",           description: "Get 10% off your next installment payment. Applied automatically.",                   cost: 2000, category: "discount",    icon: "percent",       isAvailable: true  },
+  { id: "rw2",  title: "Extra Mock Test Pack",        description: "Unlock 3 additional full-length mock tests with detailed analytics.",                cost: 500,  category: "extra",       icon: "file-text",     isAvailable: true  },
+  { id: "rw3",  title: "1-on-1 Doubt Session",        description: "Book a 30-min personal doubt clearing session with any faculty.",                    cost: 750,  category: "extra",       icon: "video",         isAvailable: true  },
+  { id: "rw4",  title: "Vector T-Shirt",              description: "Premium cotton Vector IIT/Medical Academy branded t-shirt.",                          cost: 1500, category: "merch",       icon: "shirt",         isAvailable: true  },
+  { id: "rw5",  title: "Certificate of Excellence",   description: "Official Vector certificate recognizing your consistent performance.",               cost: 1000, category: "certificate", icon: "award",         isAvailable: true  },
+  { id: "rw6",  title: "Notebook & Stationery Kit",   description: "Branded notebook, pens, and highlighters from Vector Academy.",                      cost: 800,  category: "merch",       icon: "book-open",     isAvailable: true  },
+  { id: "rw7",  title: "PYQ Booklet (Printed)",       description: "Get a printed booklet of previous year questions for your target exam.",             cost: 600,  category: "extra",       icon: "book",          isAvailable: true  },
+  { id: "rw8",  title: "5% Fee Discount",             description: "Get 5% off your next installment. Stackable with other discounts.",                  cost: 1000, category: "discount",    icon: "percent",       isAvailable: true  },
+  { id: "rw9",  title: "Priority Doubt Queue",        description: "Skip the queue - your doubts get answered first for 7 days.",                       cost: 400,  category: "extra",       icon: "zap",           isAvailable: true  },
+  { id: "rw10", title: "Vector Hoodie",               description: "Premium Vector Academy hoodie. Limited edition.",                                    cost: 2500, category: "merch",       icon: "shirt",         isAvailable: false },
 ]
